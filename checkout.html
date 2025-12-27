@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Order Summary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="checkout.css">
+</head>
+<body>
+    <div class="checkout-container">
+        <div class="checkout-header">
+            <a class="back-link" href="javascript:history.back()">← Back to Menu</a>
+            <h1>Order Summary</h1>
+            <p class="checkout-subtitle">Review your selections</p>
+        </div>
+
+        <div class="receipt-container">
+            <div class="receipt-header">
+                <span class="receipt-label">Cafeteria</span>
+                <span id="cafeteriaName">—</span>
+            </div>
+
+            <div class="receipt-header">
+                <span class="receipt-label">Ordered by</span>
+                <span id="userName">—</span>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <div class="receipt-items" id="receiptItems"></div>
+
+            <div class="receipt-divider"></div>
+
+            <div class="receipt-total">
+                <span class="total-label">Total</span>
+                <span class="total-amount" id="totalAmount">$0.00</span>
+            </div>
+        </div>
+
+        <div class="order-type-section">
+            <h2>Order Type</h2>
+            <div class="order-type-buttons">
+                <button class="order-type-btn order-type-btn--pickup active" id="pickupBtn" data-type="Pickup">
+                    <span class="order-type-icon">🛍️</span>
+                    Pickup
+                </button>
+                <button class="order-type-btn order-type-btn--delivery" id="deliveryBtn" data-type="Delivery">
+                    <span class="order-type-icon">🚚</span>
+                    Delivery
+                </button>
+            </div>
+            
+            <div class="location-input-wrapper" id="locationWrapper" style="display: none;">
+                <label for="locationInput" class="location-label">Delivery Location</label>
+                <textarea 
+                    id="locationInput" 
+                    class="location-textarea" 
+                    placeholder="Enter your current location (e.g., Building 5, Room 203)"
+                    rows="3"
+                    maxlength="200"
+                ></textarea>
+                <span class="location-helper">Please provide detailed location for delivery</span>
+            </div>
+        </div>
+
+        <div class="payment-section">
+            <h2>Payment Method</h2>
+            <div class="payment-buttons">
+                <button class="payment-btn payment-btn--cash" id="payCash">
+                    <span class="payment-icon">💵</span>
+                    Cash on Delivery
+                </button>
+                <button class="payment-btn payment-btn--card" id="payCard">
+                    <span class="payment-icon">💳</span>
+                    Credit/Debit Card
+                </button>
+            </div>
+        </div>
+
+        <div class="order-feedback" id="orderFeedback"></div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        const selectedItems = JSON.parse(sessionStorage.getItem('selectedItems') || '[]');
+        const cafeteriaInfo = JSON.parse(sessionStorage.getItem('checkoutCafeteria') || '{}');
+        let selectedOrderType = 'Pickup';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!isAuthenticated()) {
+                alert('Please login first');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            if (selectedItems.length === 0) {
+                alert('No items selected');
+                window.location.href = 'user-dashboard.html';
+                return;
+            }
+
+            const currentUser = getCurrentUser();
+            document.getElementById('userName').textContent = `${currentUser.name} ${currentUser.lastName}`;
+            document.getElementById('cafeteriaName').textContent = cafeteriaInfo.name || 'Unknown Cafeteria';
+
+            renderReceiptItems();
+            setupOrderTypeButtons();
+
+            document.getElementById('payCash').addEventListener('click', () => finalizeOrder('Cash'));
+            document.getElementById('payCard').addEventListener('click', () => finalizeOrder('Card'));
+        });
+
+        function setupOrderTypeButtons() {
+            const pickupBtn = document.getElementById('pickupBtn');
+            const deliveryBtn = document.getElementById('deliveryBtn');
+            const locationWrapper = document.getElementById('locationWrapper');
+
+            pickupBtn.addEventListener('click', () => {
+                selectedOrderType = 'Pickup';
+                pickupBtn.classList.add('active');
+                deliveryBtn.classList.remove('active');
+                locationWrapper.style.display = 'none';
+            });
+
+            deliveryBtn.addEventListener('click', () => {
+                selectedOrderType = 'Delivery';
+                deliveryBtn.classList.add('active');
+                pickupBtn.classList.remove('active');
+                locationWrapper.style.display = 'block';
+            });
+        }
+
+        function renderReceiptItems() {
+            const container = document.getElementById('receiptItems');
+            let total = 0;
+
+            const itemsHTML = selectedItems.map(item => {
+                const basePrice = parseFloat(item.price.replace('JOD', ''));
+                let itemTotal = basePrice;
+
+                const addOnsHTML = item.addOns && item.addOns.length > 0
+                    ? item.addOns.map(addOn => {
+                        const addOnPrice = parseFloat(addOn.price.replace('JOD', ''));
+                        itemTotal += addOnPrice;
+                        return `<div class="receipt-addon">+ ${addOn.name} <span>${addOn.price}</span></div>`;
+                    }).join('')
+                    : '';
+
+                total += itemTotal;
+
+                return `
+                    <div class="receipt-item">
+                        <div class="receipt-item-header">
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-price">${item.price}</span>
+                        </div>
+                        ${addOnsHTML}
+                        ${item.category ? `<div class="item-category-badge">${item.category}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = itemsHTML;
+            document.getElementById('totalAmount').textContent = `${total.toFixed(2)} JOD`;
+        }
+
+        function finalizeOrder(paymentMethod) {
+            const currentUser = getCurrentUser();
+
+            if (selectedOrderType === 'Delivery') {
+                const locationInput = document.getElementById('locationInput');
+                const location = locationInput.value.trim();
+                
+                if (!location) {
+                    showFeedback('Please enter your delivery location', 'error');
+                    locationInput.focus();
+                    return;
+                }
+            }
+
+            const locationInput = document.getElementById('locationInput');
+            const deliveryLocation = selectedOrderType === 'Delivery' ? locationInput.value.trim() : null;
+
+            const itemsWithOrderType = selectedItems.map(item => ({
+                ...item,
+                orderType: selectedOrderType
+            }));
+
+            const order = {
+                id: `order-${Date.now()}`,
+                cafeteriaId: cafeteriaInfo.id,
+                cafeteria: cafeteriaInfo.name,
+                items: itemsWithOrderType,
+                orderType: selectedOrderType,
+                deliveryLocation: deliveryLocation,
+                paymentMethod: paymentMethod,
+                orderedBy: currentUser.phone,
+                userName: `${currentUser.name} ${currentUser.lastName}`,
+                timestamp: new Date().toISOString(),
+                status: 'pending'
+            };
+
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            orders.push(order);
+            localStorage.setItem('orders', JSON.stringify(orders));
+
+            sessionStorage.removeItem('selectedItems');
+            sessionStorage.removeItem('checkoutCafeteria');
+
+            showFeedback(`${selectedOrderType} order placed successfully! Payment: ${paymentMethod}`, 'success');
+
+            setTimeout(() => {
+                window.location.href = 'user-dashboard.html';
+            }, 2000);
+        }
+
+        function showFeedback(message, tone) {
+            const feedback = document.getElementById('orderFeedback');
+            feedback.textContent = message;
+            feedback.className = `order-feedback order-feedback--${tone}`;
+            feedback.style.display = 'block';
+
+            setTimeout(() => {
+                feedback.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

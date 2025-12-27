@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin-dashboard.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>Orders</h1>
+            <p>Admin Dashboard</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="admin-summary" id="adminSummary"></div>
+        <div class="admin-profile" id="adminProfile"></div>
+        <div class="orders-actions">
+            <button class="clear-orders-btn" id="clearOrdersBtn">Clear All Orders</button>
+        </div>
+        <div id="ordersContainer">
+            <div class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <h3>No orders yet</h3>
+                <p>Orders will appear here in real-time</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const adminProfiles = {
+            "1": {
+                name: "Engineering Cafeteria 1",
+                title: "Engineering Ops Briefing",
+                tagline: "Keep students powered with fresh Jordanian breakfasts and hearty lunches.",
+                details: [
+                    { label: "Service Window", value: "07:30 - 17:00" },
+                    { label: "Shift Lead", value: "Ahmad Khalil" },
+                    { label: "Phone", value: "06-535-0221" }
+                ],
+                notes: [
+                    "Prep Foul & Hummus platters before 07:00.",
+                    "Start Maqluba preparation by 09:30 for lunch service.",
+                    "Keep falafel frying station ready for sandwich orders."
+                ]
+            },
+            "2": {
+                name: "Engineering Cafeteria 2",
+                title: "Annex Counter Checklist",
+                tagline: "Fresh mezze and grilled specialties for engineers on the go.",
+                details: [
+                    { label: "Service Window", value: "08:00 - 19:00" },
+                    { label: "Shift Lead", value: "Rami Haddad" },
+                    { label: "Phone", value: "06-535-0224" }
+                ],
+                notes: [
+                    "Prepare fresh Labneh plates with olive oil by 07:30.",
+                    "Start Meat Biryani rice cooking by 10:00.",
+                    "Keep shawarma spit rotating for beef sandwich orders."
+                ]
+            },
+            "3": {
+                name: "Medicine Cafeteria",
+                title: "Clinical Fuel Center",
+                tagline: "Nutritious Jordanian meals for medical students and staff.",
+                details: [
+                    { label: "Service Window", value: "06:30 - 16:30" },
+                    { label: "Shift Lead", value: "Layla Mansour" },
+                    { label: "Phone", value: "06-535-0310" }
+                ],
+                notes: [
+                    "Warm Balila chickpea bowls ready by 06:15.",
+                    "Marinate grilled chicken breasts the night before.",
+                    "Keep halloumi cheese sliced for wrap orders."
+                ]
+            },
+            "4": {
+                name: "Business Cafeteria",
+                title: "Business Service Suite",
+                tagline: "Premium Jordanian cuisine for business students and faculty.",
+                details: [
+                    { label: "Service Window", value: "08:00 - 18:00" },
+                    { label: "Shift Lead", value: "Samer Qasem" },
+                    { label: "Phone", value: "06-535-0405" }
+                ],
+                notes: [
+                    "Prepare Shakshuka pans fresh for breakfast orders.",
+                    "Start Mansaf jameed sauce preparation by 09:00.",
+                    "Form kafta patties before the lunch rush."
+                ]
+            },
+            "5": {
+                name: "Science Cafeteria",
+                title: "Science Lab Pantry",
+                tagline: "Traditional Jordanian flavors to fuel your discoveries.",
+                details: [
+                    { label: "Service Window", value: "07:45 - 18:15" },
+                    { label: "Shift Lead", value: "Nadia Barakat" },
+                    { label: "Phone", value: "06-535-0512" }
+                ],
+                notes: [
+                    "Toast bread and prep chickpeas for Fatteh by 07:15.",
+                    "Core and stuff zucchini for Kousa Mahshi before 10:00.",
+                    "Prep mixed grill skewers during morning shift."
+                ]
+            },
+            "6": {
+                name: "Arts Cafeteria",
+                title: "Arts Courtyard Service",
+                tagline: "Creative mezze and traditional comfort food for artists.",
+                details: [
+                    { label: "Service Window", value: "09:00 - 20:00" },
+                    { label: "Shift Lead", value: "Hana Sabbagh" },
+                    { label: "Phone", value: "06-535-0618" }
+                ],
+                notes: [
+                    "Prep hummus, baba ghanoush and tabbouleh for mezze platters.",
+                    "Marinate Musakhan chicken with sumac overnight.",
+                    "Keep fresh labneh and za'atar ready for wrap orders."
+                ]
+            },
+            "7": {
+                name: "Law Cafeteria",
+                title: "Law Commons Command",
+                tagline: "Hearty Jordanian meals for long study sessions.",
+                details: [
+                    { label: "Service Window", value: "07:30 - 21:00" },
+                    { label: "Shift Lead", value: "Tariq Awad" },
+                    { label: "Phone", value: "06-535-0702" }
+                ],
+                notes: [
+                    "Start slow-cooking Ful Medames by 05:30.",
+                    "Begin Lamb Kabsa rice preparation by 10:00.",
+                    "Marinate Shish Tawook chicken for sandwich orders."
+                ]
+            },
+            "8": {
+                name: "Central Library Cafe",
+                title: "Central Library Dispatch",
+                tagline: "Quiet-friendly snacks and traditional Jordanian beverages.",
+                details: [
+                    { label: "Service Window", value: "07:00 - 23:00" },
+                    { label: "Shift Lead", value: "Omar Nasser" },
+                    { label: "Phone", value: "06-535-0888" }
+                ],
+                notes: [
+                    "Slice fresh Knafeh portions every 2 hours.",
+                    "Keep fresh mint stocked for mint tea orders.",
+                    "Brew Arabic coffee with cardamom throughout the day."
+                ]
+            }
+        };
+
+        function getCafeteriaParam() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        const userType = sessionStorage.getItem('userType');
+        const storedCafeteriaId = sessionStorage.getItem('cafeteriaId');
+        const paramCafeteriaId = getCafeteriaParam();
+        const activeCafeteriaId = paramCafeteriaId || storedCafeteriaId;
+
+        if (userType !== 'admin' || !activeCafeteriaId) {
+            window.location.href = 'index.html';
+        }
+
+        if (storedCafeteriaId !== activeCafeteriaId) {
+            sessionStorage.setItem('cafeteriaId', activeCafeteriaId);
+        }
+
+        const profile = adminProfiles[activeCafeteriaId] || null;
+        const resolvedCafeteriaName = profile?.name || sessionStorage.getItem('cafeteriaName') || 'Assigned Cafeteria';
+
+        sessionStorage.setItem('cafeteriaName', resolvedCafeteriaName);
+        document.title = `${resolvedCafeteriaName} • Admin Dashboard`;
+
+        const ordersContainer = document.getElementById('ordersContainer');
+        const adminSummary = document.getElementById('adminSummary');
+        const adminProfile = document.getElementById('adminProfile');
+
+        adminSummary.innerHTML = `
+            <span class="summary-label">Cafeteria</span>
+            <span class="summary-value">${resolvedCafeteriaName}</span>
+        `;
+
+        renderAdminProfile(profile);
+
+        function renderAdminProfile(profileData) {
+            if (!profileData) {
+                adminProfile.style.display = 'none';
+                return;
+            }
+
+            const detailsMarkup = profileData.details && profileData.details.length
+                ? `
+                    <div class="profile-grid">
+                        ${profileData.details.map(detail => `
+                            <div class="profile-tile">
+                                <span class="tile-label">${detail.label}</span>
+                                <span class="tile-value">${detail.value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `
+                : '';
+
+            const notesMarkup = profileData.notes && profileData.notes.length
+                ? `
+                    <div class="profile-notes">
+                        <span class="notes-label">Shift Notes</span>
+                        <ul>
+                            ${profileData.notes.map(note => `<li>${note}</li>`).join('')}
+                        </ul>
+                    </div>
+                `
+                : '';
+
+            adminProfile.innerHTML = `
+                <div class="profile-header">
+                    <h2>${profileData.title}</h2>
+                    <p>${profileData.tagline}</p>
+                </div>
+                ${detailsMarkup}
+                ${notesMarkup}
+            `;
+        }
+
+        function formatDateTime(date) {
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = date.toLocaleString('default', { month: 'short' });
+            const year = date.getFullYear();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${day} ${month} ${year} • ${hours}:${minutes}`;
+        }
+
+        function renderOrders() {
+            const orders = (JSON.parse(localStorage.getItem('orders') || '[]'))
+                .filter(order => order.cafeteriaId === activeCafeteriaId);
+            
+            if (orders.length === 0) {
+                ordersContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <h3>No orders yet</h3>
+                        <p>Orders will appear here in real-time</p>
+                    </div>
+                `;
+                return;
+            }
+
+            orders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            ordersContainer.innerHTML = `
+                <div class="orders-list">
+                    ${orders.map(order => {
+                        const isMultiItemOrder = order.items && Array.isArray(order.items);
+                        
+                        if (isMultiItemOrder) {
+                            // New checkout system format
+                            let total = 0;
+                            order.items.forEach(item => {
+                                total += parseFloat(item.price.replace(' JOD', '').replace('JOD', '').replace('$', ''));
+                                if (item.addOns && item.addOns.length) {
+                                    item.addOns.forEach(addOn => {
+                                        total += parseFloat(addOn.price.replace(' JOD', '').replace('JOD', '').replace('$', ''));
+                                    });
+                                }
+                            });
+                            
+                            return `
+                                <div class="order-card">
+                                    <div class="order-header">
+                                        <div class="order-cafeteria">${order.cafeteria || resolvedCafeteriaName}</div>
+                                        <div class="order-meta">
+                                            <span class="order-type order-type--${(order.orderType || 'Pickup').toLowerCase()}">${(order.orderType || 'Pickup').toUpperCase()}</span>
+                                            <span class="order-type">${order.paymentMethod || 'CASH'}</span>
+                                            <span class="order-time">${formatDateTime(new Date(order.timestamp))}</span>
+                                        </div>
+                                    </div>
+                                    ${order.deliveryLocation ? `
+                                        <div class="delivery-location">
+                                            <span class="location-icon">📍</span>
+                                            <span class="location-text">${order.deliveryLocation}</span>
+                                        </div>
+                                    ` : ''}
+                                    ${order.items.map(item => `
+                                        <div class="order-item">
+                                            <div class="order-details">
+                                                <span class="order-item-name">${item.name}</span>
+                                                ${item.addOns && item.addOns.length ? `
+                                                    <ul class="order-addons">
+                                                        ${item.addOns.map(addOn => `
+                                                            <li>${addOn.name}<span class="addon-price">${addOn.price}</span></li>
+                                                        `).join('')}
+                                                    </ul>
+                                                ` : ''}
+                                            </div>
+                                            <span class="order-price">${item.price}</span>
+                                        </div>
+                                    `).join('')}
+                                    <div class="order-total">
+                                        <strong>Total:</strong> ${total.toFixed(2)} JOD
+                                    </div>
+                                    <div class="order-user">
+                                        <span class="order-user-name">${order.userName || order.orderedBy}</span>
+                                        ${order.orderedBy ? `<span class="order-user-phone">${order.orderedBy}</span>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            // Old single-item format (backward compatibility)
+                            return `
+                                <div class="order-card">
+                                    <div class="order-header">
+                                        <div class="order-cafeteria">${order.cafeteria || resolvedCafeteriaName}</div>
+                                        <div class="order-meta">
+                                            <span class="order-type order-type--${(order.orderType || 'Pickup').toLowerCase()}">${(order.orderType || 'Pickup').toUpperCase()}</span>
+                                            <span class="order-time">${formatDateTime(new Date(order.timestamp))}</span>
+                                        </div>
+                                    </div>
+                                    <div class="order-item">
+                                        <div class="order-details">
+                                            <span class="order-item-name">${order.item}</span>
+                                            ${order.category ? `<span class="order-category">${order.category}</span>` : ''}
+                                            ${order.addOns && order.addOns.length ? `
+                                                <ul class="order-addons">
+                                                    ${order.addOns.map(addOn => `
+                                                        <li>${addOn.name}${addOn.price ? `<span class="addon-price">${addOn.price}</span>` : ''}</li>
+                                                    `).join('')}
+                                                </ul>
+                                            ` : ''}
+                                        </div>
+                                        <span class="order-price">${order.price}</span>
+                                    </div>
+                                    ${order.orderedBy ? `
+                                        <div class="order-user">
+                                            <span class="order-user-phone">${order.orderedBy}</span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `;
+                        }
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        renderOrders();
+
+        document.getElementById('clearOrdersBtn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all orders for this cafeteria? This action cannot be undone.')) {
+                const allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+                const remainingOrders = allOrders.filter(order => order.cafeteriaId !== activeCafeteriaId);
+                localStorage.setItem('orders', JSON.stringify(remainingOrders));
+                renderOrders();
+            }
+        });
+
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'orders') {
+                renderOrders();
+            }
+        });
+
+        setInterval(renderOrders, 2000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafeteria Menu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="cafeteria.css">
+</head>
+<body>
+    <div class="page-wrapper">
+        <header class="header">
+            <a class="back-link" href="user-dashboard.html">← Back to Cafeterias</a>
+            <div class="cafeteria-meta">
+                <h1 id="cafeteriaName">Cafeteria</h1>
+                <p id="cafeteriaDescription">Discover our menu selections crafted for your faculty.</p>
+                <div class="cafeteria-details" id="cafeteriaDetails"></div>
+            </div>
+        </header>
+
+        <main>
+            <section class="menu-section" id="menuSection"></section>
+            <section class="takeout-section" id="takeoutSection"></section>
+            <div class="order-feedback" id="orderFeedback" role="status"></div>
+            <div class="notice-banner" id="noticeBanner"></div>
+            
+            <div class="checkout-bar" id="checkoutBar" style="display: none;">
+                <div class="checkout-bar-content">
+                    <span id="selectedCount">0 items selected</span>
+                    <button class="checkout-button" id="checkoutButton">Proceed to Checkout</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const REDIRECT_STORAGE_KEY = 'redirectAfterLogin';
+        
+        const cafeteriaData = {
+    "1": {
+        name: "Engineering Cafeteria 1",
+        image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800",
+        description: "Authentic Jordanian meals perfect for long study sessions.",
+        details: [
+            "Location: Engineering Building Level 2",
+            "Hours: 7:30 AM - 5:00 PM",
+            "Daily Specials: 11:30 AM - 2:00 PM"
+        ],
+        notice: "",
+        menu: [
+            {
+                category: "Breakfast",
+                items: [
+                    {
+                        name: "Foul & Hummus Platter",
+                        description: "Warm fava beans and creamy hummus with olive oil, served with fresh pita bread.",
+                        price: "2.5 JOD",
+                        image: "/photos/engineering1/55d38b8c-7fe9-49a2-8d36-2ac059cdb5e7.avif",
+                        addOns: [
+                            { name: "Extra pita", price: "0.5 JOD" },
+                            { name: "Pickles & olives", price: "0.8 JOD" }
+                        ]
+                    },
+                    {
+                        name: "Manakish Za'atar",
+                        description: "Freshly baked flatbread topped with za'atar and olive oil.",
+                        price: "1.5 JOD",
+                        image: "/photos/engineering1/Manakish-Zaatar-1-of-1.jpeg",
+                        addOns: [
+                            { name: "Labneh side", price: "0.7 JOD" },
+                            { name: "Cheese topping", price: "1 JOD" }
+                        ]
+                    }
+                ]
+            },
+            {
+                category: "Main Meals",
+                items: [
+                    {
+                        name: "Maqluba (Upside Down Rice)",
+                        description: "Traditional layered rice with chicken, eggplant, cauliflower and Middle Eastern spices.",
+                        price: "4.5 JOD",
+                        image: "/photos/engineering1/maqluba-upside-down-chicken-and-rice_11005.jpg",
+                        addOns: [
+                            { name: "Yogurt salad", price: "0.8 JOD" },
+                            { name: "Extra meat", price: "2 JOD" }
+                        ]
+                    },
+                    {
+                        name: "Chicken Shawarma Plate",
+                        description: "Marinated chicken shawarma with rice, salad, and tahini sauce.",
+                        price: "3.5 JOD",
+                        image: "/photos/engineering1/Screenshot-2025-07-28-at-11.webp",
+                        addOns: [
+                            { name: "French fries", price: "1 JOD" },
+                            { name: "Garlic sauce", price: "0.5 JOD" }
+                        ]
+                    }
+                ]
+            }
+        ],
+        takeout: {
+            title: "Sandwiches & Wraps",
+            description: "Quick meals perfect for takeaway.",
+            items: [
+                {
+                    name: "Falafel Sandwich",
+                    description: "Crispy falafel with tahini, vegetables, and pickles in fresh pita.",
+                    price: "1.8 JOD",
+                    image: "/photos/engineering1/Falafel-Sandwich-Recipe-SQ.jpg",
+                    readyIn: "Ready in 8 minutes",
+                    addOns: [
+                        { name: "Extra falafel", price: "0.5 JOD" },
+                        { name: "French fries inside", price: "0.7 JOD" }
+                    ]
+                },
+                {
+                    name: "Chicken Shawarma Wrap",
+                    description: "Tender chicken shawarma with garlic sauce and pickles in saj bread.",
+                    price: "2.5 JOD",
+                    image: "/photos/engineering1/1667937205404.webp",
+                    readyIn: "Ready in 10 minutes",
+                    addOns: [
+                        { name: "Extra garlic sauce", price: "0.3 JOD" },
+                        { name: "Cheese", price: "0.7 JOD" }
+                    ]
+                }
+            ]
+        }
+    },
+    "2": {
+        name: "Engineering Cafeteria 2",
+        image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800",
+        description: "Fresh mezze and grilled specialties for engineers on the go.",
+        details: [
+            "Location: Engineering Annex Ground Floor",
+            "Hours: 8:00 AM - 7:00 PM",
+            "Grab & Go refills every hour"
+        ],
+        notice: "",
+        menu: [
+            {
+                category: "Breakfast",
+                items: [
+                    {
+                        name: "Labneh Plate",
+                        description: "Creamy labneh drizzled with olive oil, served with cucumbers, tomatoes, and pita.",
+                        price: "2 JOD",
+                        image: "/photos/engineering2/labaneh.jpg",
+                        addOns: [
+                            { name: "Mint leaves", price: "0.3 JOD" },
+                            { name: "Za'atar mix", price: "0.5 JOD" }
+                        ]
+                    }
+                ]
+            },
+            {
+                category: "Lunch",
+                items: [
+                    {
+                        name: "Meat Biryani",
+                        description: "Spiced rice with tender lamb, nuts, and raisins.",
+                        price: "5 JOD",
+                        image: "/photos/engineering2/meatbiryani.jpg",
+                        addOns: [
+                            { name: "Yogurt", price: "0.8 JOD" },
+                            { name: "Hot sauce", price: "0.3 JOD" }
+                        ]
+                    }
+                ]
+            }
+        ],
+        takeout: {
+            title: "Quick Bites",
+            description: "Fast and delicious portable meals.",
+            items: [
+                {
+                    name: "Beef Shawarma Sandwich",
+                    description: "Marinated beef with tahini and pickles.",
+                    price: "2.8 JOD",
+                    image: "/photos/engineering2/beef-shawarma-1.jpg",
+                    readyIn: "Ready in 10 minutes",
+                    addOns: [
+                        { name: "Extra meat", price: "1 JOD" }
+                    ]
+                }
+            ]
+        }
+    },
+    "3": {
+        name: "Medicine Cafeteria",
+        image: "https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=800",
+        description: "Nutritious Jordanian meals planned for medical students.",
+        details: [
+            "Location: Medical Sciences Pavilion",
+            "Hours: 6:30 AM - 4:30 PM",
+        ],
+        notice: "",
+        menu: [
+            {
+                category: "Healthy Start",
+                items: [
+                    {
+                        name: "Balila (Chickpea Bowl)",
+                        description: "Warm chickpeas with lemon, garlic, and cumin.",
+                        price: "2 JOD",
+                        image: "/photos/Medicine/hummus-balila-11.jpg",
+                        addOns: [
+                            { name: "Pita bread", price: "0.5 JOD" }
+                        ]
+                    }
+                ]
+            },
+            {
+                category: "Main Dishes",
+                items: [
+                    {
+                        name: "Grilled Chicken with Rice",
+                        description: "Seasoned grilled chicken breast with saffron rice and salad.",
+                        price: "4 JOD",
+                        image: "/photos/Medicine/grilledchickenwithrice.jpg",
+                        addOns: [
+                            { name: "Garlic dip", price: "0.5 JOD" }
+                        ]
+                    }
+                ]
+            }
+        ],
+        takeout: {
+            title: "Healthy Wraps",
+            description: "Nutritious options for on-call schedules.",
+            items: [
+                {
+                    name: "Grilled Halloumi Wrap",
+                    description: "Grilled halloumi cheese with vegetables in saj bread.",
+                    price: "2.5 JOD",
+                    image: "/photos/Medicine/grilledhalloumiwrap.jpg",
+                    readyIn: "Ready in 12 minutes",
+                    addOns: []
+                }
+            ]
+        }
+    },
+    "4": {
+        name: "Business Cafeteria",
+        image: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800",
+        description: "Premium Jordanian cuisine for business students.",
+        details: [
+            "Location: Business School Atrium",
+            "Hours: 8:00 AM - 6:00 PM",
+            "Lunch service: 11:00 AM - 2:30 PM"
+        ],
+        notice: "",
+        menu: [
+            {
+                category: "Executive Breakfast",
+                items: [
+                    {
+                        name: "Shakshuka",
+                        description: "Eggs poached in spiced tomato sauce, served with bread.",
+                        price: "3 JOD",
+                        image: "/photos/Business/Shakshuka-main-1.webp",
+                        addOns: [
+                            { name: "Extra egg", price: "0.7 JOD" }
+                        ]
+                    }
+                ]
+            },
+            {
+                category: "Business Lunch",
+                items: [
+                    {
+                        name: "Mansaf",
+                        description: "Jordan's national dish - lamb cooked in jameed sauce over rice.",
+                        price: "6.5 JOD",
+                        image: "/photos/Business/mansaf-4-1-500x500.jpg",
+                        addOns: [
+                            { name: "Extra jameed sauce", price: "1 JOD" },
+                            { name: "Roasted nuts", price: "1.5 JOD" }
+                        ]
+                    }
+                ]
+            }
+        ],
+        takeout: {
+            title: "Executive Meals",
+            description: "Premium sandwiches and plates.",
+            items: [
+                {
+                    name: "Kafta Sandwich",
+                    description: "Spiced ground meat kafta with hummus and pickles.",
+                    price: "3 JOD",
+                    image: "/photos/Business/kaftasandwich.jpg",
+                    readyIn: "Ready in 15 minutes",
+                    addOns: []
+                }
+            ]
+        }
+    },
+    "5": {
+        name: "Science Cafeteria",
+        image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800",
+        description: "Traditional flavors to fuel your discoveries.",
+        details: [
+            "Location: Science Complex Lower Level",
+            "Hours: 7:45 AM - 6:15 PM",
+            "Fresh juices available all day"
+        ],
+        notice: "",
+        menu: [
+            {
+                category: "Traditional Breakfast",
+                items: [
+                    {
+                        name: "Fatteh",
+                        description: "Layers of toasted bread, chickpeas, yogurt, and pine nuts.",
+                        price: "3.5 JOD",
+                        image: "/photos/science/fatteh-2fp.jpg",
+                        addOns: []
+                    }
+                ]
+            },
+            {
+                category: "Lunch",
+                items: [
+                    {
+                        name: "Kousa Mahshi (Stuffed Zucchini)",
+                        description: "Zucchini stuffed with rice and meat in tomato sauce.",
+                        price: "4.5 JOD",
+                        image: "/photos/science/kousamahshi.jpg",
+                        addOns: [
+                            { name: "Yogurt", price: "0.8 JOD" }
+                        ]
+                    }
+                ]
+            }
+        ],
+        takeout: {
+            title: "Quick Meals",
+            description: "Lab-friendly portable options.",
+            items: [
+                {
+                    name: "Mixed Grill Plate",
+                    description: "Kafta, shish tawook, and lamb with rice.",
+                    price: "5.5 JOD",
+                    image: "/photos/science/mixedgrillplate.webp",
+                    readyIn: "Ready in 20 minutes",
+                    addOns: []
+                }
+            ]
+        }
+    },
+    "6": {
+        name: "Arts Cafeteria",
+        image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800",
+        description: "Creative mezze and traditional comfort food.",
+        details: [
+            "Location: Fine Arts Center Courtyard",
+            "Hours: 9:00 AM - 8:00 PM",
+            "Studio snacks available all day"
+        ],
+        notice: "",
+        menu: [
+            {
+                category: "Mezze",
+                items: [
+                    {
+                        name: "Mezze Platter",
+                        description: "Hummus, baba ghanoush, tabbouleh, and pita.",
+                        price: "4 JOD",
+                        image: "/photos/arts/mezze.jpg",
+                        addOns: [
+                            { name: "Extra pita", price: "0.5 JOD" }
+                        ]
+                    }
+                ]
+            },
+            {
+                category: "Main Course",
+                items: [
+                    {
+                        name: "Chicken Musakhan",
+                        description: "Roasted chicken with sumac, onions, and taboon bread.",
+                        price: "5 JOD",
+                        image: "/photos/arts/musakhan-palestinian-chicken-sumac-onion-flatbread-7.webp",
+                        addOns: []
+                    }
+                ]
+            }
+        ],
+        takeout: {
+            title: "Artisan Wraps",
+            description: "Gallery-worthy parcels.",
+            items: [
+                {
+                    name: "Labneh & Za'atar Wrap",
+                    description: "Creamy labneh with za'atar, cucumber, and mint.",
+                    price: "2 JOD",
+                    image: "/photos/arts/labanehandzaatar.jpg",
+                    readyIn: "Ready in 8 minutes",
+                    addOns: []
+                }
+            ]
+        }
+    },
+    "7": {
+        name: "Law Cafeteria",
+        image: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800",
+        description: "Hearty meals for long study sessions.",
+        details: [
+            "Location: Law School Commons",
+            "Hours: 7:30 AM - 9:00 PM",
+            "Late-night service until exams end"
+        ],
+        notice: "",
+        menu: [
+            {
+                category: "Energizing Breakfast",
+                items: [
+                    {
+                        name: "Ful Medames",
+                        description: "Slow-cooked fava beans with lemon, garlic, and olive oil.",
+                        price: "2.5 JOD",
+                        image: "/photos/law/fulmedames.jpg",
+                        addOns: [
+                            { name: "Hard boiled egg", price: "0.5 JOD" }
+                        ]
+                    }
+                ]
+            },
+            {
+                category: "Sustaining Meals",
+                items: [
+                    {
+                        name: "Lamb Kabsa",
+                        description: "Fragrant rice with tender lamb and mixed vegetables.",
+                        price: "6 JOD",
+                        image: "/photos/law/lambkabsa.jpg",
+                        addOns: []
+                    }
+                ]
+            }
+        ],
+        takeout: {
+            title: "Study Fuel",
+            description: "Case-ready combos with precise packaging.",
+            items: [
+                {
+                    name: "Shish Tawook Sandwich",
+                    description: "Marinated grilled chicken with garlic sauce and pickles.",
+                    price: "2.8 JOD",
+                    image: "/photos/law/shishtawooksandwich.jpg",
+                    readyIn: "Ready in 12 minutes",
+                    addOns: []
+                }
+            ]
+        }
+    },
+    "8": {
+        name: "Central Library Cafe",
+        image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800",
+        description: "Quiet-friendly snacks and traditional beverages.",
+        details: [
+            "Location: Central Library Ground Floor",
+            "Hours: 7:00 AM - 11:00 PM",
+            "Quiet service after 8:00 PM"
+        ],
+        notice: "",
+        menu: [
+            {
+                category: "Study Snacks",
+                items: [
+                    {
+                        name: "Knafeh Slice",
+                        description: "Sweet cheese pastry with sugar syrup and pistachios.",
+                        price: "2 JOD",
+                        image: "/photos/central library/knafe.jpg",
+                        addOns: []
+                    }
+                ]
+            },
+            {
+                category: "Beverages",
+                items: [
+                    {
+                        name: "Fresh Mint Tea",
+                        description: "Traditional Jordanian mint tea, served hot.",
+                        price: "0.8 JOD",
+                        image: "/photos/central library/Mint-Tea-SQUARE.jpg",
+                        addOns: []
+                    },
+                    {
+                        name: "Arabic Coffee",
+                        description: "Cardamom-spiced coffee served in small cups.",
+                        price: "1 JOD",
+                        image: "/photos/central library/coffee.jpeg",
+                        addOns: []
+                    }
+                ]
+            }
+        ],
+        takeout: {
+            title: "Library Wraps",
+            description: "Silent-study friendly options.",
+            items: [
+                {
+                    name: "Tuna Sandwich",
+                    description: "Tuna with vegetables and mayonnaise in fresh bread.",
+                    price: "2.2 JOD",
+                    image: "/photos/central library/Tuna-sandwich_2.webp",
+                    readyIn: "Ready in 7 minutes",
+                    addOns: []
+                }
+            ]
+        }
+    }
+};
+
+        function getCafeteriaId() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        let feedbackTimeout;
+
+        function showFeedback(message, tone = 'success') {
+            const feedback = document.getElementById('orderFeedback');
+            feedback.textContent = message;
+            feedback.className = `order-feedback order-feedback--${tone}`;
+            feedback.style.display = 'block';
+
+            clearTimeout(feedbackTimeout);
+            
+            feedbackTimeout = setTimeout(() => {
+                feedback.textContent = '';
+                feedback.className = 'order-feedback';
+                feedback.style.display = 'none';
+            }, 4000);
+        }
+
+        function renderTakeoutSection(cafeteriaId, cafeteria) {
+            const takeoutSection = document.getElementById('takeoutSection');
+            const takeout = cafeteria.takeout;
+
+            if (!takeout || !takeout.items || takeout.items.length === 0) {
+                takeoutSection.style.display = 'none';
+                return;
+            }
+
+            takeoutSection.style.display = '';
+            takeoutSection.innerHTML = `
+                <div class="takeout-header">
+                    <h2>${takeout.title}</h2>
+                    <p>${takeout.description}</p>
+                </div>
+                <div class="takeout-grid">
+                    ${takeout.items.map((item, index) => `
+                        <article class="takeout-item">
+                            <div class="takeout-item-image-container">
+                                <img src="${item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200'}" alt="${item.name}" class="takeout-item-image">
+                            </div>
+                            <div class="takeout-item-content">
+                                <div class="takeout-item-top">
+                                    <span class="takeout-item-name">${item.name}</span>
+                                    <span class="takeout-item-price">${item.price}</span>
+                                </div>
+                                <p class="takeout-item-description">${item.description}</p>
+                                ${item.readyIn ? `<div class="takeout-meta">${item.readyIn}</div>` : ''}
+                                ${item.addOns && item.addOns.length ? `
+                                    <div class="takeout-addons">
+                                        <span class="takeout-addons-label">Customize</span>
+                                        <div class="takeout-addons-options">
+                                            ${item.addOns.map((addOn, addOnIndex) => `
+                                                <label class="addon-option">
+                                                    <input type="checkbox" class="addon-checkbox" data-addon-index="${addOnIndex}">
+                                                    <span>${addOn.name} <span class="price">${addOn.price}</span></span>
+                                                </label>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                <div class="order-actions">
+                                    <button class="add-to-cart-btn" data-item-source="takeout" data-item-index="${index}">Add to Cart</button>
+                                </div>
+                            </div>
+                        </article>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        let selectedItems = [];
+
+        function updateCheckoutBar() {
+            const checkoutBar = document.getElementById('checkoutBar');
+            const countDisplay = document.getElementById('selectedCount');
+            
+            if (selectedItems.length > 0) {
+                checkoutBar.style.display = 'flex';
+                countDisplay.textContent = `${selectedItems.length} item${selectedItems.length > 1 ? 's' : ''} selected`;
+            } else {
+                checkoutBar.style.display = 'none';
+            }
+        }
+
+        function attachOrderHandlers(cafeteriaId, cafeteria) {
+            const buttons = document.querySelectorAll('.add-to-cart-btn');
+
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const source = button.dataset.itemSource || 'takeout';
+                    let item;
+                    let categoryLabel = '';
+                    let card;
+
+                    if (source === 'menu') {
+                        const sectionIndex = Number(button.dataset.sectionIndex);
+                        const itemIndex = Number(button.dataset.itemIndex);
+                        const section = cafeteria.menu && cafeteria.menu[sectionIndex];
+
+                        if (!section) {
+                            showFeedback('Unable to process that order right now.', 'error');
+                            return;
+                        }
+
+                        item = section.items && section.items[itemIndex];
+                        categoryLabel = section.category || 'Cafeteria Menu';
+                        card = button.closest('.menu-item');
+                    } else {
+                        const takeout = cafeteria.takeout;
+                        const itemIndex = Number(button.dataset.itemIndex);
+
+                        if (!takeout || !takeout.items) {
+                            showFeedback('Unable to process that order right now.', 'error');
+                            return;
+                        }
+
+                        item = takeout.items[itemIndex];
+                        categoryLabel = takeout.title || 'Takeout Order';
+                        card = button.closest('.takeout-item');
+                    }
+
+                    if (!item) {
+                        showFeedback('Unable to process that order right now.', 'error');
+                        return;
+                    }
+
+                    const selectedAddOns = item.addOns && card
+                        ? Array.from(card.querySelectorAll('.addon-checkbox:checked'))
+                            .map(checkbox => item.addOns[Number(checkbox.dataset.addonIndex)])
+                            .filter(Boolean)
+                        : [];
+
+                    selectedItems.push({
+                        name: item.name,
+                        price: item.price,
+                        addOns: selectedAddOns,
+                        category: categoryLabel
+                    });
+
+                    if (card) {
+                        card.querySelectorAll('.addon-checkbox').forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
+                    }
+
+                    updateCheckoutBar();
+                    showFeedback(`${item.name} added to cart`, 'success');
+                });
+            });
+        }
+
+        function renderCafeteriaPage() {
+            const cafeteriaId = getCafeteriaId();
+            const cafeteria = cafeteriaData[cafeteriaId];
+
+            if (!cafeteria) {
+                window.location.href = 'user-dashboard.html';
+                return;
+            }
+
+            document.getElementById('cafeteriaName').textContent = cafeteria.name;
+            document.getElementById('cafeteriaDescription').textContent = cafeteria.description;
+
+            const detailsContainer = document.getElementById('cafeteriaDetails');
+            detailsContainer.innerHTML = cafeteria.details
+                .map(detail => `<span>${detail}</span>`)
+                .join('');
+
+            const menuContainer = document.getElementById('menuSection');
+            menuContainer.innerHTML = cafeteria.menu.map((section, sectionIndex) => `
+                <article class="menu-category">
+                    <h2>${section.category}</h2>
+                    ${section.items.map((item, itemIndex) => `
+                        <div class="menu-item">
+                            <div class="item-image-container">
+                                <img src="${item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200'}" alt="${item.name}" class="item-image">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-header">
+                                    <span class="item-name">${item.name}</span>
+                                    <span class="item-price">${item.price}</span>
+                                </div>
+                                <p class="item-description">${item.description}</p>
+                                ${item.addOns && item.addOns.length ? `
+                                    <div class="takeout-addons">
+                                        <span class="takeout-addons-label">Customize</span>
+                                        <div class="takeout-addons-options">
+                                            ${item.addOns.map((addOn, addOnIndex) => `
+                                                <label class="addon-option">
+                                                    <input type="checkbox" class="addon-checkbox" data-addon-index="${addOnIndex}">
+                                                    <span>${addOn.name} <span class="price">${addOn.price}</span></span>
+                                                </label>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                <div class="order-actions menu-order-actions">
+                                    <button class="add-to-cart-btn" data-item-source="menu" data-section-index="${sectionIndex}" data-item-index="${itemIndex}">Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </article>
+            `).join('');
+
+            renderTakeoutSection(cafeteriaId, cafeteria);
+
+            attachOrderHandlers(cafeteriaId, cafeteria);
+
+            const noticeBanner = document.getElementById('noticeBanner');
+            noticeBanner.textContent = cafeteria.notice;
+            noticeBanner.style.display = cafeteria.notice ? 'block' : 'none';
+        }
+
+        renderCafeteriaPage();
+        
+        document.getElementById('checkoutButton').addEventListener('click', () => {
+            if (selectedItems.length === 0) {
+                showFeedback('No items selected', 'error');
+                return;
+            }
+            
+            sessionStorage.setItem('selectedItems', JSON.stringify(selectedItems));
+            
+            const cafeteriaId = getCafeteriaId();
+            const cafeteria = cafeteriaData[cafeteriaId];
+            sessionStorage.setItem('checkoutCafeteria', JSON.stringify({
+                id: cafeteriaId,
+                name: cafeteria.name
+            }));
+            
+            window.location.href = 'checkout.html';
+        });
+    </script>
+</body>
+</html>

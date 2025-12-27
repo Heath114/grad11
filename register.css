@@ -1,0 +1,223 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%);
+    color: #1f1f1f;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 24px;
+}
+
+.register-container {
+    width: min(620px, 100%);
+    background: #ffffff;
+    border: 1px solid #f1d7d7;
+    border-radius: 20px;
+    padding: 60px 56px;
+    box-shadow: 0 26px 80px rgba(214, 40, 40, 0.12);
+}
+
+.logo {
+    margin-bottom: 48px;
+    text-align: center;
+}
+
+.logo h1 {
+    font-size: 34px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #b91c1c;
+}
+
+.logo p {
+    margin-top: 10px;
+    color: #a15555;
+    font-size: 15px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.form-group + .form-group {
+    margin-top: 26px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    color: #851616;
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+}
+
+input {
+    width: 100%;
+    padding: 16px 18px;
+    border: 1px solid #e2bcbc;
+    border-radius: 12px;
+    font-size: 16px;
+    background: #fff9f9;
+    color: #1f1f1f;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus {
+    outline: none;
+    border-color: #d62828;
+    box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.12);
+    background: #ffffff;
+}
+
+input::placeholder {
+    color: #b89999;
+}
+
+.error-message,
+.success-message {
+    margin-top: 22px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: none;
+    padding: 14px 16px;
+    border-radius: 12px;
+}
+
+.error-message {
+    color: #8b1e1e;
+    border: 1px solid rgba(214, 40, 40, 0.35);
+    background: rgba(214, 40, 40, 0.08);
+}
+
+.success-message {
+    color: #155724;
+    border: 1px solid rgba(40, 167, 69, 0.35);
+    background: rgba(40, 167, 69, 0.08);
+}
+
+.error-message.show,
+.success-message.show {
+    display: block;
+}
+
+.register-btn {
+    width: 100%;
+    margin-top: 34px;
+    padding: 16px;
+    background: #d62828;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.register-btn:hover {
+    background: #b71c1c;
+    box-shadow: 0 12px 30px rgba(214, 40, 40, 0.22);
+    transform: translateY(-1px);
+}
+
+.register-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 6px 16px rgba(214, 40, 40, 0.2);
+}
+
+.login-link {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 12px;
+    color: #a15555;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.login-link a {
+    color: #d62828;
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 8px;
+    transition: color 0.2s ease;
+}
+
+.login-link a:hover {
+    color: #b71c1c;
+}
+
+.password-requirements {
+    margin-top: 20px;
+    padding: 16px;
+    background: #fff9f9;
+    border: 1px solid #f0d7d7;
+    border-radius: 12px;
+}
+
+.password-requirements h4 {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #851616;
+    font-weight: 600;
+}
+
+.password-requirements ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.password-requirements li {
+    font-size: 12px;
+    color: #a15555;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.password-requirements li:before {
+    content: "✗";
+    color: #d62828;
+    font-weight: bold;
+    margin-right: 8px;
+    font-size: 14px;
+}
+
+.password-requirements li.valid:before {
+    content: "✓";
+    color: #28a745;
+}
+
+@media (max-width: 640px) {
+    body {
+        padding: 40px 18px;
+    }
+
+    .register-container {
+        padding: 42px 28px;
+        border-radius: 18px;
+    }
+
+    .logo h1 {
+        font-size: 26px;
+    }
+
+    .logo p {
+        font-size: 13px;
+        letter-spacing: 0.14em;
+    }
+}
