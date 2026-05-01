@@ -15,10 +15,22 @@
         <div class="header-content">
             <h1>Cafeterias</h1>
             <p>Select a location</p>
+            <button class="logout-btn" id="logoutBtn" type="button">Sign Out</button>
         </div>
     </div>
 
     <div class="container">
+        <div id="activeOrdersContainer" class="active-orders" style="display: none;">
+            <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Your Active Orders
+            </h2>
+            <div id="orderList"></div>
+        </div>
+
         <div class="cafeteria-list">
             <a href="cafeteria.html?id=1" class="cafeteria-card">
                 <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400" alt="Engineering Cafeteria 1" class="cafeteria-image">
@@ -92,6 +104,43 @@
                 <div class="arrow">›</div>
             </a>
         </div>
+
+        <div class="about-section" id="aboutSection">
+            <h2 class="about-title">About the Platform</h2>
+            <p class="about-text">
+                Welcome to the unified campus dining experience. This platform is designed to connect students, faculty, and staff directly to every cafeteria across the university. Whether you need a quick coffee between classes or want to schedule a pickup for your lunch break, you can browse all available menus, place direct orders, and leave feedback for your favorite food spots. Skip the lines and focus on your studies!
+            </p>
+        </div>
+
+        <div class="complaints-section" id="complaintsSection">
+            <h2 class="complaints-title">Help & Support</h2>
+            <p class="complaints-subtitle">Have an issue with your order? Let us know and we'll review it.</p>
+            <form id="complaintForm" class="complaint-form">
+                <div class="form-group">
+                    <label for="complaintType">Type</label>
+                    <select id="complaintType" required>
+                        <option value="complaint">Complaint</option>
+                        <option value="recommendation">Recommendation</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="complaintEmail">Email Address for follow up</label>
+                    <input type="email" id="complaintEmail" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="complaintSubject">Subject</label>
+                    <input type="text" id="complaintSubject" placeholder="Brief summary of your issue" required>
+                </div>
+                <div class="form-group">
+                    <label for="complaintMessage">Message</label>
+                    <textarea id="complaintMessage" placeholder="Provide as much detail as possible..." rows="4" required></textarea>
+                </div>
+                <div id="complaintFeedback" class="complaint-feedback"></div>
+                <button type="submit" class="submit-complaint-btn" id="submitComplaintBtn">Send Message</button>
+            </form>
+        </div>
     </div>
+    <script src="auth.js"></script>
+    <script src="user-dashboard-logic.js"></script>
 </body>
 </html>

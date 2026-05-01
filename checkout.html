@@ -89,20 +89,20 @@
         const cafeteriaInfo = JSON.parse(sessionStorage.getItem('checkoutCafeteria') || '{}');
         let selectedOrderType = 'Pickup';
 
-        window.addEventListener('DOMContentLoaded', () => {
-            if (!isAuthenticated()) {
+        window.addEventListener('DOMContentLoaded', async () => {
+            const authed = await isAuthenticated();
+            if (!authed) {
                 alert('Please login first');
                 window.location.href = 'index.html';
                 return;
             }
 
             if (selectedItems.length === 0) {
-                alert('No items selected');
                 window.location.href = 'user-dashboard.html';
                 return;
             }
 
-            const currentUser = getCurrentUser();
+            const currentUser = await getCurrentUser();
             document.getElementById('userName').textContent = `${currentUser.name} ${currentUser.lastName}`;
             document.getElementById('cafeteriaName').textContent = cafeteriaInfo.name || 'Unknown Cafeteria';
 
@@ -167,8 +167,8 @@
             document.getElementById('totalAmount').textContent = `${total.toFixed(2)} JOD`;
         }
 
-        function finalizeOrder(paymentMethod) {
-            const currentUser = getCurrentUser();
+        async function finalizeOrder(paymentMethod) {
+            const currentUser = await getCurrentUser();
 
             if (selectedOrderType === 'Delivery') {
                 const locationInput = document.getElementById('locationInput');
@@ -189,32 +189,38 @@
                 orderType: selectedOrderType
             }));
 
-            const order = {
-                id: `order-${Date.now()}`,
+            // Backend Order Payload
+            const orderPayload = {
                 cafeteriaId: cafeteriaInfo.id,
-                cafeteria: cafeteriaInfo.name,
-                items: itemsWithOrderType,
                 orderType: selectedOrderType,
                 deliveryLocation: deliveryLocation,
                 paymentMethod: paymentMethod,
-                orderedBy: currentUser.phone,
-                userName: `${currentUser.name} ${currentUser.lastName}`,
-                timestamp: new Date().toISOString(),
-                status: 'pending'
+                items: selectedItems.map(item => ({
+                    menuItemId: item.id || null,
+                    name: item.name,
+                    price: item.price,
+                    category: item.category,
+                    addOns: item.addOns || []
+                }))
             };
 
-            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-            orders.push(order);
-            localStorage.setItem('orders', JSON.stringify(orders));
+            document.getElementById('payCash').disabled = true;
+            document.getElementById('payCard').disabled = true;
 
-            sessionStorage.removeItem('selectedItems');
-            sessionStorage.removeItem('checkoutCafeteria');
+            const { ok, message } = await apiCall('/orders/', 'POST', orderPayload);
 
-            showFeedback(`${selectedOrderType} order placed successfully! Payment: ${paymentMethod}`, 'success');
-
-            setTimeout(() => {
-                window.location.href = 'user-dashboard.html';
-            }, 2000);
+            if (ok) {
+                sessionStorage.removeItem('selectedItems');
+                sessionStorage.removeItem('checkoutCafeteria');
+                showFeedback(`${selectedOrderType} order placed successfully! Payment: ${paymentMethod}`, 'success');
+                setTimeout(() => {
+                    window.location.href = 'user-dashboard.html';
+                }, 2000);
+            } else {
+                showFeedback(message || 'Failed to place order. Please try again.', 'error');
+                document.getElementById('payCash').disabled = false;
+                document.getElementById('payCard').disabled = false;
+            }
         }
 
         function showFeedback(message, tone) {

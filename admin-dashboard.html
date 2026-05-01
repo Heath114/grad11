@@ -14,6 +14,7 @@
         <div class="header-content">
             <h1>Orders</h1>
             <p>Admin Dashboard</p>
+            <button class="logout-btn" id="adminLogoutBtn" type="button">Sign Out</button>
         </div>
     </div>
 
@@ -30,8 +31,27 @@
                 <p>Orders will appear here in real-time</p>
             </div>
         </div>
+
+        <div class="reviews-section" style="margin-top: 48px;">
+            <div class="orders-actions" style="justify-content: space-between; border-bottom: 2px solid #f1f1f1; padding-bottom: 12px; margin-bottom: 24px;">
+                <h2 style="font-size: 20px; font-weight: 600; color: #1f1f1f; margin: 0;">Cafeteria Reviews</h2>
+                <div id="adminReviewStats" style="font-size: 14px; color: #666; font-weight: 500;"></div>
+            </div>
+            <div id="reviewsContainer">
+                <div class="empty-state">
+                    <div class="empty-state-icon">⭐</div>
+                    <h3>No reviews yet</h3>
+                    <p>Customer feedback will appear here</p>
+                </div>
+            </div>
+        </div>
+
+        </div>
+        </div>
+    </div>
     </div>
 
+    <script src="auth.js"></script>
     <script>
         const adminProfiles = {
             "1": {
@@ -240,9 +260,11 @@
             return `${day} ${month} ${year} • ${hours}:${minutes}`;
         }
 
-        function renderOrders() {
-            const orders = (JSON.parse(localStorage.getItem('orders') || '[]'))
-                .filter(order => order.cafeteriaId === activeCafeteriaId);
+                async function fetchAdminOrders() {
+            const { ok, data } = await apiCall(`/orders/cafeteria/${activeCafeteriaId}`);
+            if (!ok) return;
+
+            const orders = data || [];
             
             if (orders.length === 0) {
                 ordersContainer.innerHTML = `
@@ -255,121 +277,122 @@
                 return;
             }
 
-            orders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
             ordersContainer.innerHTML = `
                 <div class="orders-list">
                     ${orders.map(order => {
-                        const isMultiItemOrder = order.items && Array.isArray(order.items);
-                        
-                        if (isMultiItemOrder) {
-                            // New checkout system format
-                            let total = 0;
-                            order.items.forEach(item => {
-                                total += parseFloat(item.price.replace(' JOD', '').replace('JOD', '').replace('$', ''));
-                                if (item.addOns && item.addOns.length) {
-                                    item.addOns.forEach(addOn => {
-                                        total += parseFloat(addOn.price.replace(' JOD', '').replace('JOD', '').replace('$', ''));
-                                    });
-                                }
-                            });
-                            
-                            return `
-                                <div class="order-card">
-                                    <div class="order-header">
-                                        <div class="order-cafeteria">${order.cafeteria || resolvedCafeteriaName}</div>
-                                        <div class="order-meta">
-                                            <span class="order-type order-type--${(order.orderType || 'Pickup').toLowerCase()}">${(order.orderType || 'Pickup').toUpperCase()}</span>
-                                            <span class="order-type">${order.paymentMethod || 'CASH'}</span>
-                                            <span class="order-time">${formatDateTime(new Date(order.timestamp))}</span>
-                                        </div>
-                                    </div>
-                                    ${order.deliveryLocation ? `
-                                        <div class="delivery-location">
-                                            <span class="location-icon">📍</span>
-                                            <span class="location-text">${order.deliveryLocation}</span>
-                                        </div>
-                                    ` : ''}
-                                    ${order.items.map(item => `
-                                        <div class="order-item">
-                                            <div class="order-details">
-                                                <span class="order-item-name">${item.name}</span>
-                                                ${item.addOns && item.addOns.length ? `
-                                                    <ul class="order-addons">
-                                                        ${item.addOns.map(addOn => `
-                                                            <li>${addOn.name}<span class="addon-price">${addOn.price}</span></li>
-                                                        `).join('')}
-                                                    </ul>
-                                                ` : ''}
-                                            </div>
-                                            <span class="order-price">${item.price}</span>
-                                        </div>
-                                    `).join('')}
-                                    <div class="order-total">
-                                        <strong>Total:</strong> ${total.toFixed(2)} JOD
-                                    </div>
-                                    <div class="order-user">
-                                        <span class="order-user-name">${order.userName || order.orderedBy}</span>
-                                        ${order.orderedBy ? `<span class="order-user-phone">${order.orderedBy}</span>` : ''}
+                        return `
+                            <div class="order-card">
+                                <div class="order-header">
+                                    <div class="order-cafeteria">${resolvedCafeteriaName}</div>
+                                    <div class="order-meta">
+                                        <span class="order-type order-type--${(order.orderType || 'Pickup').toLowerCase()}">${(order.orderType || 'Pickup').toUpperCase()}</span>
+                                        <span class="order-type" style="background:#edf2f7;color:#333;margin-left:4px;">${order.status.toUpperCase()}</span>
+                                        <span class="order-type">${order.paymentMethod || 'CASH'}</span>
+                                        <span class="order-time">${formatDateTime(new Date(order.createdAt))}</span>
                                     </div>
                                 </div>
-                            `;
-                        } else {
-                            // Old single-item format (backward compatibility)
-                            return `
-                                <div class="order-card">
-                                    <div class="order-header">
-                                        <div class="order-cafeteria">${order.cafeteria || resolvedCafeteriaName}</div>
-                                        <div class="order-meta">
-                                            <span class="order-type order-type--${(order.orderType || 'Pickup').toLowerCase()}">${(order.orderType || 'Pickup').toUpperCase()}</span>
-                                            <span class="order-time">${formatDateTime(new Date(order.timestamp))}</span>
-                                        </div>
+                                ${order.deliveryLocation ? `
+                                    <div class="delivery-location">
+                                        <span class="location-icon">📍</span>
+                                        <span class="location-text">${order.deliveryLocation}</span>
                                     </div>
+                                ` : ''}
+                                ${order.items.map(item => `
                                     <div class="order-item">
                                         <div class="order-details">
-                                            <span class="order-item-name">${order.item}</span>
-                                            ${order.category ? `<span class="order-category">${order.category}</span>` : ''}
-                                            ${order.addOns && order.addOns.length ? `
+                                            <span class="order-item-name">${item.name}</span>
+                                            ${item.addOns && item.addOns.length ? `
                                                 <ul class="order-addons">
-                                                    ${order.addOns.map(addOn => `
-                                                        <li>${addOn.name}${addOn.price ? `<span class="addon-price">${addOn.price}</span>` : ''}</li>
+                                                    ${item.addOns.map(addOn => `
+                                                        <li>${addOn.name}<span class="addon-price">${addOn.price} JOD</span></li>
                                                     `).join('')}
                                                 </ul>
                                             ` : ''}
                                         </div>
-                                        <span class="order-price">${order.price}</span>
+                                        <span class="order-price">${item.price} JOD</span>
                                     </div>
-                                    ${order.orderedBy ? `
-                                        <div class="order-user">
-                                            <span class="order-user-phone">${order.orderedBy}</span>
-                                        </div>
-                                    ` : ''}
+                                `).join('')}
+                                <div class="order-total">
+                                    <strong>Total:</strong> ${order.total.toFixed(2)} JOD
                                 </div>
-                            `;
-                        }
+                                <div class="order-user">
+                                    <span class="order-user-name">${order.userName}</span>
+                                    ${order.userPhone ? `<span class="order-user-phone">${order.userPhone}</span>` : ''}
+                                </div>
+                            </div>
+                        `;
                     }).join('')}
                 </div>
             `;
         }
 
-        renderOrders();
+        async function fetchAdminReviews() {
+            const reviewsContainer = document.getElementById('reviewsContainer');
+            const adminReviewStats = document.getElementById('adminReviewStats');
+            
+            const { ok, data } = await apiCall(`/ratings/${activeCafeteriaId}`);
+            if (!ok || !data) return;
 
-        document.getElementById('clearOrdersBtn').addEventListener('click', function() {
+            adminReviewStats.innerHTML = `<strong>${data.average.toFixed(1)}</strong> ⭐ (${data.total} reviews)`;
+
+            if (data.reviews.length === 0) {
+                reviewsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⭐</div>
+                        <h3>No reviews yet</h3>
+                        <p>Customer feedback will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+
+            reviewsContainer.innerHTML = `
+                <div class="orders-list">
+                    ${data.reviews.map(r => `
+                        <div class="order-card" style="border-left: 4px solid #f4a261;">
+                            <div class="order-header" style="border-bottom: none; margin-bottom: 8px; padding-bottom: 0;">
+                                <div class="order-meta">
+                                    <div style="color: #f4a261; font-size: 14px; margin-bottom: 4px;">
+                                        ${'★'.repeat(r.score)}${'☆'.repeat(5 - r.score)}
+                                    </div>
+                                </div>
+                                <span class="order-time">${formatDateTime(new Date(r.createdAt))}</span>
+                            </div>
+                            ${r.comment ? `<p style="margin: 0 0 12px 0; font-size: 14px; color: #1f1f1f; line-height: 1.5;">"${r.comment}"</p>` : ''}
+                            <div class="order-user" style="border-top: 1px solid #f1f1f1; padding-top: 12px;">
+                                <span class="order-user-name" style="font-weight: 500; font-size: 13px; color: #666;">By: ${r.userName}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        
+        function updateAdminDashboard() {
+            fetchAdminOrders();
+            fetchAdminReviews();
+        }
+
+        updateAdminDashboard();
+
+        document.getElementById('clearOrdersBtn').addEventListener('click', async function() {
             if (confirm('Are you sure you want to clear all orders for this cafeteria? This action cannot be undone.')) {
-                const allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-                const remainingOrders = allOrders.filter(order => order.cafeteriaId !== activeCafeteriaId);
-                localStorage.setItem('orders', JSON.stringify(remainingOrders));
-                renderOrders();
+                const { ok } = await apiCall(`/orders/cafeteria/${activeCafeteriaId}/clear`, 'DELETE');
+                if (ok) {
+                    fetchAdminOrders();
+                } else {
+                    alert('Failed to clear orders. Please try again.');
+                }
             }
         });
 
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'orders') {
-                renderOrders();
-            }
-        });
+        setInterval(updateAdminDashboard, 2000);
 
-        setInterval(renderOrders, 2000);
+
+        document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+            logout();
+        });
     </script>
 </body>
 </html>

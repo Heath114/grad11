@@ -76,7 +76,7 @@
         const errorMessage = document.getElementById('errorMessage');
         const successMessage = document.getElementById('successMessage');
 
-        registerForm.addEventListener('submit', function(e) {
+        registerForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const name = document.getElementById('name').value.trim();
@@ -84,6 +84,7 @@
             const phone = document.getElementById('phone').value.trim();
             const password = document.getElementById('password').value.trim();
             const confirmPassword = document.getElementById('confirmPassword').value.trim();
+            const registerBtn = registerForm.querySelector('.register-btn');
 
             if (!name || !lastName || !phone || !password || !confirmPassword) {
                 showError('All fields are required');
@@ -95,15 +96,25 @@
                 return;
             }
 
-            const result = register(name, lastName, phone, password);
+            registerBtn.disabled = true;
+            registerBtn.textContent = 'Registering...';
 
-            if (result.success) {
-                showSuccess('Registration successful! Redirecting to login...');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
-            } else {
-                showError(result.message);
+            try {
+                const result = await register(name, lastName, phone, password);
+
+                if (result.success) {
+                    showSuccess('Registration successful! Redirecting to login...');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                } else {
+                    showError(result.message || 'Registration failed');
+                }
+            } catch (err) {
+                showError('Could not connect to server. Please try again.');
+            } finally {
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'Register';
             }
         });
 

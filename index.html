@@ -16,7 +16,12 @@
             <p>Sign in to your account</p>
         </div>
 
-        <form id="loginForm">
+        <div class="login-choice">
+            <button class="choice-btn active" id="userChoiceBtn" type="button">User Sign In</button>
+            <button class="choice-btn" id="adminChoiceBtn" type="button">Admin Sign In</button>
+        </div>
+
+        <form id="loginForm" class="login-panel">
             <div class="form-group">
                 <label for="phone">Username / Phone Number</label>
                 <input type="text" id="phone" placeholder="Enter username or phone number" required>
@@ -27,85 +32,324 @@
                 <input type="password" id="password" placeholder="Enter your password" required>
             </div>
 
-            <div class="error-message" id="errorMessage">
-                Incorrect username or password
-            </div>
+            <div class="error-message" id="errorMessage"></div>
 
-            <button type="submit" class="login-btn">Sign In</button>
+            <button type="submit" class="login-btn" id="loginBtn">Sign In</button>
         </form>
 
-        <div class="register-link">
-            <span>Don't have an account?</span>
-            <a href="register.html">Register</a>
+        <div class="user-extras" id="userExtras">
+            <div class="register-link">
+                <span>Don't have an account?</span>
+                <a href="register.html">Register</a>
+            </div>
+
+            <div class="browse-section">
+                <span class="browse-copy">Just browsing?</span>
+                <a class="browse-link" href="user-dashboard.html">Explore Cafeteria Menus</a>
+            </div>
+
+            <div class="browse-section" style="margin-top: 15px;">
+                <span class="browse-copy">Developer Tools:</span>
+                <a class="browse-link" href="developer-inbox.html" style="color: #d61010;">📭 View Support Inbox</a>
+            </div>
         </div>
 
-        <div class="browse-section">
-            <span class="browse-copy">Just browsing?</span>
-            <a class="browse-link" href="user-dashboard.html">Explore Cafeteria Menus</a>
+        <div id="adminPanel" class="login-panel is-hidden">
+            <div id="adminLoginWrap">
+                <form id="adminLoginForm">
+            <div class="form-group">
+                <label for="adminUsername">Admin Username</label>
+                <input type="text" id="adminUsername" placeholder="Enter admin username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="adminPassword">Password</label>
+                <input type="password" id="adminPassword" placeholder="Enter your password" required>
+            </div>
+
+            <div class="error-message" id="adminErrorMessage"></div>
+
+            <button type="submit" class="login-btn" id="adminLoginBtn">Sign In</button>
+                </form>
+                
+                <div class="user-extras">
+                    <div class="register-link">
+                        <span>Don't have an admin account?</span>
+                        <a href="#" id="showAdminRegisterLink">Register</a>
+                    </div>
+                </div>
+
+                <div class="browse-section" style="visibility: hidden; pointer-events: none; margin-top: 0; height: 86px;"></div>
+            </div>
+
+            <div id="adminRegisterWrap" class="is-hidden">
+                <form id="adminRegisterForm">
+                <div class="form-group">
+                    <label for="adminRegisterUsername">Admin Username</label>
+                    <input type="text" id="adminRegisterUsername" placeholder="Choose a username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="adminRegisterCafeteria">Cafeteria ID</label>
+                    <input type="text" id="adminRegisterCafeteria" placeholder="Enter cafeteria id (1-8)" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="adminRegisterPassword">Password</label>
+                    <input type="password" id="adminRegisterPassword" placeholder="Create a password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="adminRegisterConfirm">Confirm Password</label>
+                    <input type="password" id="adminRegisterConfirm" placeholder="Confirm your password" required>
+                </div>
+
+                <div class="error-message" id="adminRegisterError"></div>
+                <div class="success-message" id="adminRegisterSuccess"></div>
+
+                <button type="submit" class="login-btn" id="adminRegisterBtn">Create Admin Account</button>
+                </form>
+
+                <div class="user-extras">
+                    <div class="register-link">
+                        <span>Already have an admin account?</span>
+                        <a href="#" id="showAdminLoginLink">Sign In</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="user-extras" id="adminUserExtras" style="display: none; flex-direction: column; align-items: center; justify-content: center; gap: 15px;">
+            <div class="browse-section">
+                <span class="browse-copy">Developer Tools:</span>
+                <a class="browse-link" href="developer-inbox.html" style="color: #c20f0f;">📭 View Support Inbox</a>
+            </div>
         </div>
     </div>
 
     <script src="auth.js"></script>
     <script>
         const REDIRECT_STORAGE_KEY = 'redirectAfterLogin';
+        const loginForm   = document.getElementById('loginForm');
+        const errorMsg    = document.getElementById('errorMessage');
+        const loginBtn    = document.getElementById('loginBtn');
+        const adminPanel  = document.getElementById('adminPanel');
+        const adminForm   = document.getElementById('adminLoginForm');
+        const adminError  = document.getElementById('adminErrorMessage');
+        const adminBtn    = document.getElementById('adminLoginBtn');
+        const userChoice  = document.getElementById('userChoiceBtn');
+        const adminChoice = document.getElementById('adminChoiceBtn');
+        const userExtras  = document.getElementById('userExtras');
+        const showAdminLoginLink = document.getElementById('showAdminLoginLink');
+        const showAdminRegisterLink = document.getElementById('showAdminRegisterLink');
+        const adminLoginWrap = document.getElementById('adminLoginWrap');
+        const adminRegisterWrap = document.getElementById('adminRegisterWrap');
+        const adminRegisterForm = document.getElementById('adminRegisterForm');
+        const adminRegisterError = document.getElementById('adminRegisterError');
+        const adminRegisterSuccess = document.getElementById('adminRegisterSuccess');
+        const adminRegisterBtn = document.getElementById('adminRegisterBtn');
 
-        const adminAccounts = {
-            'admin1': { password: 'admin1', cafeteriaId: '1', cafeteriaName: 'Engineering Cafeteria 1' },
-            'admin2': { password: 'admin2', cafeteriaId: '2', cafeteriaName: 'Engineering Cafeteria 2' },
-            'admin3': { password: 'admin3', cafeteriaId: '3', cafeteriaName: 'Medicine Cafeteria' },
-            'admin4': { password: 'admin4', cafeteriaId: '4', cafeteriaName: 'Business Cafeteria' },
-            'admin5': { password: 'admin5', cafeteriaId: '5', cafeteriaName: 'Science Cafeteria' },
-            'admin6': { password: 'admin6', cafeteriaId: '6', cafeteriaName: 'Arts Cafeteria' },
-            'admin7': { password: 'admin7', cafeteriaId: '7', cafeteriaName: 'Law Cafeteria' },
-            'admin8': { password: 'admin8', cafeteriaId: '8', cafeteriaName: 'Central Library Cafe' }
-        };
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.classList.add('show');
+            setTimeout(() => errorMsg.classList.remove('show'), 3000);
+        }
 
-        const loginForm = document.getElementById('loginForm');
-        const errorMessage = document.getElementById('errorMessage');
+        function showAdminError(msg) {
+            adminError.textContent = msg;
+            adminError.classList.add('show');
+            setTimeout(() => adminError.classList.remove('show'), 3000);
+        }
 
-        loginForm.addEventListener('submit', function(e) {
+        function showAdminRegisterError(msg) {
+            adminRegisterError.textContent = msg;
+            adminRegisterError.classList.add('show');
+            adminRegisterSuccess.classList.remove('show');
+            setTimeout(() => adminRegisterError.classList.remove('show'), 3000);
+        }
+
+        function showAdminRegisterSuccess(msg) {
+            adminRegisterSuccess.textContent = msg;
+            adminRegisterSuccess.classList.add('show');
+            adminRegisterError.classList.remove('show');
+        }
+
+        function setAdminMode(mode) {
+            if (mode === 'register') {
+                adminRegisterWrap.classList.remove('is-hidden');
+                adminLoginWrap.classList.add('is-hidden');
+            } else {
+                adminLoginWrap.classList.remove('is-hidden');
+                adminRegisterWrap.classList.add('is-hidden');
+            }
+        }
+
+        function setActivePanel(panel) {
+            if (panel === 'admin') {
+                adminPanel.classList.remove('is-hidden');
+                loginForm.classList.add('is-hidden');
+                adminChoice.classList.add('active');
+                userChoice.classList.remove('active');
+                userExtras.classList.add('is-hidden');
+                document.getElementById('adminUserExtras').style.display = 'flex';
+                setAdminMode('login');
+                document.getElementById('adminUsername').value = '';
+                document.getElementById('adminPassword').value = '';
+                adminError.classList.remove('show');
+            } else {
+                loginForm.classList.remove('is-hidden');
+                adminPanel.classList.add('is-hidden');
+                userChoice.classList.add('active');
+                adminChoice.classList.remove('active');
+                userExtras.classList.remove('is-hidden');
+                document.getElementById('adminUserExtras').style.display = 'none';
+                document.getElementById('phone').value = '';
+                document.getElementById('password').value = '';
+                errorMsg.classList.remove('show');
+            }
+        }
+
+        loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            
-            const phone = document.getElementById('phone').value.trim();
+
+            const username = document.getElementById('phone').value.trim();
             const password = document.getElementById('password').value.trim();
 
-            if (adminAccounts[phone] && adminAccounts[phone].password === password) {
-                sessionStorage.setItem('userType', 'admin');
-                sessionStorage.setItem('username', phone);
-                sessionStorage.setItem('cafeteriaId', adminAccounts[phone].cafeteriaId);
-                sessionStorage.setItem('cafeteriaName', adminAccounts[phone].cafeteriaName);
-                sessionStorage.removeItem(REDIRECT_STORAGE_KEY);
-                window.location.href = `admin-dashboard.html?id=${adminAccounts[phone].cafeteriaId}`;
+            loginBtn.disabled    = true;
+            loginBtn.textContent = 'Signing in...';
+
+            try {
+                const result = await login(username, password);
+
+                if (result.success) {
+                    if (result.data.userType === 'admin') {
+                        // Logout in background to destroy session, then show error
+                        await apiCall('/auth/logout', 'POST').catch(() => {});
+                        showError('Admin accounts must use the Admin Sign In panel.');
+                    } else {
+                        const redirect = sessionStorage.getItem(REDIRECT_STORAGE_KEY);
+                        sessionStorage.removeItem(REDIRECT_STORAGE_KEY);
+                        window.location.href = redirect || 'user-dashboard.html';
+                    }
+                } else {
+                    showError(result.message || 'Invalid credentials');
+                }
+            } catch (err) {
+                showError('Could not connect to server. Please try again.');
+            } finally {
+                loginBtn.disabled    = false;
+                loginBtn.textContent = 'Sign In';
+            }
+        });
+
+        ['phone', 'password'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                errorMsg.classList.remove('show');
+            });
+        });
+
+        userChoice.addEventListener('click', () => setActivePanel('user'));
+        adminChoice.addEventListener('click', () => setActivePanel('admin'));
+        userChoice.addEventListener('dblclick', (e) => {
+            e.preventDefault();
+            setActivePanel('user');
+            document.getElementById('phone').value = 'user1';
+            document.getElementById('password').value = 'user1';
+            errorMsg.classList.remove('show');
+        });
+        adminChoice.addEventListener('dblclick', (e) => {
+            e.preventDefault();
+            setActivePanel('admin');
+            setAdminMode('login');
+            document.getElementById('adminUsername').value = 'admin1';
+            document.getElementById('adminPassword').value = 'admin1';
+            adminError.classList.remove('show');
+        });
+
+        setActivePanel('user');
+
+        adminForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('adminUsername').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+
+            adminBtn.disabled = true;
+            adminBtn.textContent = 'Signing in...';
+
+            try {
+                const result = await login(username, password);
+
+                if (result.success && result.data.userType === 'admin') {
+                    window.location.href = `admin-dashboard.html?id=${result.data.cafeteriaId}`;
+                } else if (result.success) {
+                    await apiCall('/auth/logout', 'POST').catch(() => {});
+                    showAdminError('This account is not an admin');
+                } else {
+                    showAdminError(result.message || 'Invalid credentials');
+                }
+            } catch (err) {
+                showAdminError('Could not connect to server. Please try again.');
+            } finally {
+                adminBtn.disabled = false;
+                adminBtn.textContent = 'Sign In as Admin';
+            }
+        });
+
+        ['adminUsername', 'adminPassword'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                adminError.classList.remove('show');
+            });
+        });
+
+        showAdminLoginLink.addEventListener('click', (e) => { e.preventDefault(); setAdminMode('login'); });
+        showAdminRegisterLink.addEventListener('click', (e) => { e.preventDefault(); setAdminMode('register'); });
+
+        adminRegisterForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('adminRegisterUsername').value.trim();
+            const cafeteriaId = document.getElementById('adminRegisterCafeteria').value.trim();
+            const password = document.getElementById('adminRegisterPassword').value.trim();
+            const confirmPassword = document.getElementById('adminRegisterConfirm').value.trim();
+
+            if (!username || !cafeteriaId || !password || !confirmPassword) {
+                showAdminRegisterError('All fields are required');
                 return;
             }
 
-            const result = login(phone, password);
+            if (password !== confirmPassword) {
+                showAdminRegisterError('Passwords do not match');
+                return;
+            }
 
-            if (result.success) {
-                const redirectUrl = sessionStorage.getItem(REDIRECT_STORAGE_KEY);
+            adminRegisterBtn.disabled = true;
+            adminRegisterBtn.textContent = 'Creating...';
 
-                if (redirectUrl) {
-                    sessionStorage.removeItem(REDIRECT_STORAGE_KEY);
-                    window.location.href = redirectUrl;
+            try {
+                const result = await registerAdmin(username, password, cafeteriaId);
+
+                if (result.success) {
+                    showAdminRegisterSuccess('Admin account created');
+                    setTimeout(() => {
+                        setAdminMode('login');
+                    }, 800);
                 } else {
-                    window.location.href = 'user-dashboard.html';
+                    showAdminRegisterError(result.message || 'Registration failed');
                 }
-            } else {
-                errorMessage.textContent = result.message;
-                errorMessage.classList.add('show');
-                
-                setTimeout(() => {
-                    errorMessage.classList.remove('show');
-                }, 3000);
+            } catch (err) {
+                showAdminRegisterError('Could not connect to server. Please try again.');
+            } finally {
+                adminRegisterBtn.disabled = false;
+                adminRegisterBtn.textContent = 'Create Admin Account';
             }
         });
 
-        document.getElementById('phone').addEventListener('input', () => {
-            errorMessage.classList.remove('show');
-        });
-        
-        document.getElementById('password').addEventListener('input', () => {
-            errorMessage.classList.remove('show');
+        ['adminRegisterUsername', 'adminRegisterCafeteria', 'adminRegisterPassword', 'adminRegisterConfirm'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                adminRegisterError.classList.remove('show');
+                adminRegisterSuccess.classList.remove('show');
+            });
         });
     </script>
 </body>

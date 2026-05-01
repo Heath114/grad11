@@ -26,6 +26,26 @@ body {
     gap: 14px;
 }
 
+.logout-btn {
+    align-self: flex-start;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.22);
+    transform: translateY(-1px);
+}
+
 .header h1 {
     font-size: 42px;
     letter-spacing: 0.06em;
@@ -129,4 +149,272 @@ body {
     .cafeteria-card {
         padding: 28px 24px;
     }
+}
+
+.active-orders {
+    background: #ffffff;
+    border: 1px solid #f1d7d7;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 40px;
+    box-shadow: 0 12px 34px rgba(214, 40, 40, 0.06);
+}
+
+.active-orders h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #b91c1c;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.order-tracker {
+    border: 1px solid #f1d7d7;
+    background: #fff9f9;
+    border-radius: 12px;
+    padding: 20px;
+}
+.order-tracker + .order-tracker {
+    margin-top: 16px;
+}
+
+.tracker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(214, 40, 40, 0.1);
+}
+
+.tracker-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f1f1f;
+}
+
+.tracker-meta {
+    font-size: 12px;
+    color: #851616;
+    margin-top: 4px;
+}
+
+.tracker-badge {
+    background: #d62828;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.tracker-badge.ready {
+    background: #2a9d8f;
+}
+
+.tracker-badge.preparing {
+    background: #f4a261;
+}
+
+.tracker-badge.out_for_delivery {
+    background: #e76f51;
+}
+
+.tracker-steps {
+    display: flex;
+    justify-content: inset;
+    align-items: center;
+    margin-top: 20px;
+    position: relative;
+}
+
+.tracker-step {
+    flex: 1;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #b89999;
+    position: relative;
+}
+
+.tracker-step::before {
+    content: '';
+    display: block;
+    width: 14px;
+    height: 14px;
+    background: #b89999;
+    border: 3px solid #fff9f9;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+    position: relative;
+    z-index: 2;
+}
+
+.tracker-step::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: -50%;
+    width: 100%;
+    height: 2px;
+    background: #e2bcbc;
+    z-index: 1;
+}
+
+.tracker-step:first-child::after {
+    display: none;
+}
+
+.tracker-step.active, .tracker-step.completed {
+    color: #2a9d8f;
+}
+
+.tracker-step.active::before, .tracker-step.completed::before {
+    background: #2a9d8f;
+}
+
+.tracker-step.completed::after, .tracker-step.active::after {
+    background: #2a9d8f;
+}
+
+.collect-btn {
+    background: #bb2229;
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.collect-btn:hover {
+    background: #dd7c8c;
+}
+
+/* Complaints Section */
+.about-section {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px;
+    margin-top: 48px;
+    border: 1px solid #f1f1f1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.about-title {
+    font-size: 20px;
+    color: #1f1f1f;
+    margin-bottom: 8px;
+}
+
+.about-text {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.6;
+}
+
+.complaints-section {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px;
+    margin-top: 48px;
+    border: 1px solid #f1f1f1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.complaints-title {
+    font-size: 20px;
+    color: #1f1f1f;
+    margin-bottom: 8px;
+}
+
+.complaints-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 24px;
+}
+
+.complaint-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.complaint-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.complaint-form label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #4a4a4a;
+}
+
+.complaint-form input,
+.complaint-form select,
+.complaint-form textarea {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.complaint-form input:focus,
+.complaint-form select:focus,
+.complaint-form textarea:focus {
+    outline: none;
+    border-color: #d62828;
+    box-shadow: 0 0 0 2px rgba(214, 40, 40, 0.1);
+}
+
+.submit-complaint-btn {
+    background: #1f1f1f;
+    color: #fff;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+}
+
+.submit-complaint-btn:hover {
+    background: #333;
+}
+
+.complaint-feedback {
+    display: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.complaint-feedback.success {
+    display: block;
+    background: #e6f6ea;
+    color: #156f3d;
+    border: 1px solid #9bd0ab;
+}
+
+.complaint-feedback.error {
+    display: block;
+    background: #ffecec;
+    color: #8c1010;
+    border: 1px solid #eba4a4;
 }

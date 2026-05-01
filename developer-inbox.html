@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Inbox - Mock Email System</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f6f8fc; display: flex; height: 100vh; overflow: hidden; }
+        
+        .sidebar { background: #fff; width: 250px; padding: 20px 10px; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; }
+        .logo { font-size: 22px; font-weight: 600; color: #3c4043; padding: 0 10px 20px; border-bottom: 1px solid #eee; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .nav-item { padding: 12px 20px; border-radius: 0 20px 20px 0; margin-right: 15px; cursor: pointer; color: #3c4043; font-weight: 500; display: flex; justify-content: space-between; }
+        .nav-item.active { background: #e8f0fe; color: #1a73e8; }
+        .badge { background: #1a73e8; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+
+        .main-content { flex: 1; display: flex; flex-direction: column; background: #fff; border-radius: 20px; margin: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { padding: 15px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+        .header-title { font-size: 18px; color: #202124; font-weight: 500; }
+        .refresh-btn { padding: 8px 15px; color: #5f6368; background: #fff; border: 1px solid #dadce0; border-radius: 4px; cursor: pointer; font-weight: 500; }
+        .refresh-btn:hover { background: #f1f3f4; }
+        
+        .email-list { flex: 1; overflow-y: auto; }
+        .email-row { display: flex; padding: 12px 20px; border-bottom: 1px solid #f1f3f4; cursor: pointer; transition: background 0.1s; }
+        .email-row:hover { background: #f4f7f7; box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15); z-index: 1; position: relative; border-bottom: transparent; border-top: transparent; }
+        .email-row:hover + .email-row { border-top: transparent; }
+        
+        .sender { width: 220px; font-weight: 600; color: #202124; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 15px; }
+        .email-content { flex: 1; display: flex; font-size: 14px; color: #5f6368; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .subject { color: #202124; font-weight: 600; margin-right: 10px; }
+        .time { font-size: 12px; color: #5f6368; font-weight: 600; width: 100px; text-align: right; }
+        
+        .tag { padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 8px; text-transform: uppercase; }
+        .tag.complaint { background: #fce8e6; color: #d93025; }
+        .tag.recommendation { background: #e6f4ea; color: #1e8e3e; }
+
+        /* Email Modal View */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-card { background: white; width: 700px; max-width: 90%; max-height: 90vh; border-radius: 8px; box-shadow: 0 4px 23px 0 rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+        .modal-header { padding: 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: flex-start; }
+        .modal-subject { font-size: 22px; font-weight: 400; color: #202124; margin-bottom: 15px; }
+        .modal-sender-info { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 40px; height: 40px; background: #1a73e8; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: 500; }
+        .sender-details { display: flex; flex-direction: column; }
+        .sender-name { font-weight: 600; color: #202124; font-size: 14px; }
+        .sender-email { color: #5f6368; font-size: 12px; }
+        .close-btn { background: none; border: none; font-size: 24px; color: #5f6368; cursor: pointer; }
+        .modal-body { padding: 25px; overflow-y: auto; font-size: 14px; color: #202124; line-height: 1.6; white-space: pre-wrap; font-family: 'Roboto', Arial, sans-serif; }
+        
+        .empty-state { text-align: center; color: #5f6368; padding: 50px; font-size: 15px;}
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">
+            <span style="color: #1a73e8; font-size: 24px;">📭</span>
+            DevMail
+        </div>
+        <div class="nav-item active">
+            <span>Inbox</span>
+            <span class="badge" id="inbox-count">0</span>
+        </div>
+        <div class="nav-item" style="color: #5f6368; font-weight: 400;" onclick="window.location.href='index.html'">
+            <span>&larr; Back to App</span>
+        </div>
+        
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="header-title">System Support Desk</div>
+            <button class="refresh-btn" onclick="fetchEmails()">↻ Refresh</button>
+        </div>
+        <div class="email-list" id="email-list">
+            <div class="empty-state">Loading emails...</div>
+        </div>
+    </div>
+
+    <!-- Email Reader Modal -->
+    <div class="modal" id="email-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div style="flex: 1;">
+                    <div class="modal-subject" id="modal-subject">Subject line</div>
+                    <div class="modal-sender-info">
+                        <div class="avatar" id="modal-avatar">U</div>
+                        <div class="sender-details">
+                            <span class="sender-name">
+                                <span id="modal-sender-name">User Name</span> 
+                                <span class="tag" id="modal-tag" style="margin-left: 10px;">COMPLAINT</span>
+                                <span class="tag" style="background:#f1f3f4; color:#3c4043" id="modal-cafeteria">General</span>
+                            </span>
+                            <span class="sender-email" id="modal-sender-email">user@email.com</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                Body of the email goes here...
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        const API_URL = window.location.origin.includes('127.0.0.1:5500')
+            ? 'http://127.0.0.1:5001'
+            : window.location.origin;
+
+        async function fetchEmails() {
+            const listEl = document.getElementById('email-list');
+            try {
+                // Fetch directly from the developer endpoint
+                const response = await fetch(`${API_URL}/complaints/dev`);
+                const emails = await response.json();
+                
+                document.getElementById('inbox-count').innerText = emails.length;
+                
+                if (emails.length === 0) {
+                    listEl.innerHTML = '<div class="empty-state">No emails in the inbox.</div>';
+                    return;
+                }
+
+                listEl.innerHTML = '';
+                emails.forEach(email => {
+                    const date = new Date(email.createdAt);
+                    const timeString = date.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    
+                    const row = document.createElement('div');
+                    row.className = 'email-row';
+                    row.onclick = () => openEmail(email);
+
+                    row.innerHTML = `
+                        <div class="sender">${email.email}</div>
+                        <div class="email-content">
+                            <span class="tag ${email.type.toLowerCase()}">${email.type}</span>
+                            <span class="subject">${email.subject}</span>
+                            <span style="color: #5f6368">- ${email.message.substring(0, 80)}...</span>
+                        </div>
+                        <div class="time">${timeString}</div>
+                    `;
+                    listEl.appendChild(row);
+                });
+            } catch (err) {
+                console.error(err);
+                listEl.innerHTML = '<div class="empty-state">Unable to load messages. Make sure Flask is running on port 5001.</div>';
+            }
+        }
+
+        function openEmail(email) {
+            document.getElementById('modal-subject').innerText = email.subject;
+            document.getElementById('modal-sender-name').innerText = email.userName || 'Anonymous User';
+            document.getElementById('modal-sender-email').innerText = `<${email.email}>`;
+            document.getElementById('modal-body').innerText = email.message;
+            document.getElementById('modal-avatar').innerText = email.email.charAt(0).toUpperCase();
+            document.getElementById('modal-cafeteria').innerText = email.cafeteriaName || 'General Platform Support';
+            
+            const tagEl = document.getElementById('modal-tag');
+            tagEl.className = `tag ${email.type.toLowerCase()}`;
+            tagEl.innerText = email.type.toUpperCase();
+
+            document.getElementById('email-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('email-modal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('email-modal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Load emails on startup
+        fetchEmails();
+    </script>
+</body>
+</html>

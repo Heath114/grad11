@@ -1,164 +1,73 @@
-function getUsers() {
-    const usersJSON = localStorage.getItem("users");
-    return usersJSON ? JSON.parse(usersJSON) : [];
-}
+// ─── API Configuration ────────────────────────────────────────────────────────
+const API_BASE = window.location.origin.includes('127.0.0.1:5500')
+    ? 'http://127.0.0.1:5001'
+    : window.location.origin;
 
-function validatePassword(password) {
-    if (!password || password.length < 8) {
-        return {
-            valid: false,
-            message: "Password must be at least 8 characters long"
-        };
-    }
-
-    if (password.length > 20) {
-        return {
-            valid: false,
-            message: "Password must not exceed 20 characters"
-        };
-    }
-
-    if (!/[A-Z]/.test(password)) {
-        return {
-            valid: false,
-            message: "Password must contain at least one uppercase letter"
-        };
-    }
-
-    if (!/[a-z]/.test(password)) {
-        return {
-            valid: false,
-            message: "Password must contain at least one lowercase letter"
-        };
-    }
-
-    if (!/\d/.test(password)) {
-        return {
-            valid: false,
-            message: "Password must contain at least one number"
-        };
-    }
-
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-        return {
-            valid: false,
-            message: "Password must contain at least one special character"
-        };
-    }
-
-    return {
-        valid: true,
-        message: "Password is valid"
+// ─── Core API helper ──────────────────────────────────────────────────────────
+async function apiCall(endpoint, method = 'GET', body = null) {
+    const options = {
+        method,
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
     };
+    if (body) options.body = JSON.stringify(body);
+
+    const res  = await fetch(`${API_BASE}${endpoint}`, options);
+    const data = await res.json();
+    return { ok: res.ok, status: res.status, data };
 }
 
-function saveUsers(users) {
-    localStorage.setItem("users", JSON.stringify(users));
+// ─── Auth functions ───────────────────────────────────────────────────────────
+async function register(name, lastName, phone, password) {
+    const { ok, data } = await apiCall('/auth/register', 'POST', {
+        name, lastName, phone, password
+    });
+    return { success: ok, message: data.message };
 }
 
-function register(name, lastName, phone, password) {
-    if (!name || !lastName || !phone || !password) {
-        return {
-            success: false,
-            message: "All fields are required"
-        };
-    }
-
-    const passwordValidation = validatePassword(password);
-    if (!passwordValidation.valid) {
-        return {
-            success: false,
-            message: passwordValidation.message
-        };
-    }
-
-    const phoneRegex = /^\d{10}$/;
-    if (!phoneRegex.test(phone.trim())) {
-        return {
-            success: false,
-            message: "Phone number must be exactly 10 digits"
-        };
-    }
-
-    const users = getUsers();
-
-    const existingUser = users.find(user => user.phone === phone);
-    if (existingUser) {
-        return {
-            success: false,
-            message: "User with this phone number already exists"
-        };
-    }
-
-    const newUser = {
-        name: name.trim(),
-        lastName: lastName.trim(),
-        phone: phone.trim(),
-        password: password.trim()
-    };
-
-    users.push(newUser);
-    saveUsers(users);
-
-    return {
-        success: true,
-        message: "Registration successful"
-    };
+async function registerAdmin(username, password, cafeteriaId) {
+    const { ok, data } = await apiCall('/auth/register-admin', 'POST', {
+        username, password, cafeteriaId
+    });
+    return { success: ok, message: data.message };
 }
 
-function login(phone, password) {
-    if (!phone || !password) {
-        return {
-            success: false,
-            message: "All fields are required"
-        };
+async function login(username, password) {
+    const { ok, data } = await apiCall('/auth/login', 'POST', { username, password });
+    if (ok) {
+        sessionStorage.setItem('userType',     data.userType);
+        sessionStorage.setItem('userName',     data.name       || data.username || '');
+        sessionStorage.setItem('userLastName', data.lastName   || '');
+        sessionStorage.setItem('userPhone',    data.phone      || '');
+        sessionStorage.setItem('userId',       data.userId     || '');
+
+        if (data.userType === 'admin') {
+            sessionStorage.setItem('cafeteriaId',   data.cafeteriaId);
+            sessionStorage.setItem('cafeteriaName', data.cafeteriaName);
+        }
     }
-
-    const users = getUsers();
-
-    const user = users.find(
-        u => u.phone === phone.trim() && u.password === password.trim()
-    );
-
-    if (!user) {
-        return {
-            success: false,
-            message: "Invalid credentials"
-        };
-    }
-
-    sessionStorage.setItem("loggedInUser", phone);
-    sessionStorage.setItem("userName", user.name);
-    sessionStorage.setItem("userLastName", user.lastName);
-    sessionStorage.setItem("userType", "user");
-
-    return {
-        success: true,
-        message: "Login successful",
-        user: user
-    };
+    return { success: ok, message: data.message, data };
 }
 
-function isAuthenticated() {
-    return sessionStorage.getItem("loggedInUser") !== null;
+async function logout() {
+    await apiCall('/auth/logout', 'POST');
+    sessionStorage.clear();
+    window.location.href = 'index.html';
 }
 
-function getCurrentUser() {
-    if (!isAuthenticated()) {
-        return null;
-    }
-
-    return {
-        phone: sessionStorage.getItem("loggedInUser"),
-        name: sessionStorage.getItem("userName"),
-        lastName: sessionStorage.getItem("userLastName"),
-        userType: sessionStorage.getItem("userType")
-    };
+async function isAuthenticated() {
+    const { ok } = await apiCall('/auth/me');
+    return ok;
 }
 
-function logout() {
-    sessionStorage.removeItem("loggedInUser");
-    sessionStorage.removeItem("userName");
-    sessionStorage.removeItem("userLastName");
-    sessionStorage.removeItem("userType");
+async function getCurrentUser() {
+    const { ok, data } = await apiCall('/auth/me');
+    if (!ok) return null;
+    return data;
 }
+
+// ─── Quick sync reads from sessionStorage (no network needed) ─────────────────
+function getUserType()      { return sessionStorage.getItem('userType'); }
+function getUserName()      { return sessionStorage.getItem('userName'); }
+function getCafeteriaId()   { return sessionStorage.getItem('cafeteriaId'); }
+function getCafeteriaName() { return sessionStorage.getItem('cafeteriaName'); }

@@ -23,6 +23,39 @@
         <main>
             <section class="menu-section" id="menuSection"></section>
             <section class="takeout-section" id="takeoutSection"></section>
+            
+            <section class="rating-section" id="ratingSection">
+                <div class="rating-header">
+                    <h2>Reviews & Ratings</h2>
+                    <div class="average-rating">
+                        <span class="avg-score" id="avgScore">0.0</span>
+                        <div class="stars-summary">
+                            <div class="stars-display" id="avgStars">
+                                <!-- generated stars -->
+                            </div>
+                            <span class="total-reviews" id="totalReviews">0 reviews</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="add-review">
+                    <h3>Leave a Review</h3>
+                    <div class="star-selector" id="starSelector">
+                        <svg viewBox="0 0 24 24" data-value="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg viewBox="0 0 24 24" data-value="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg viewBox="0 0 24 24" data-value="3"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg viewBox="0 0 24 24" data-value="4"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg viewBox="0 0 24 24" data-value="5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    </div>
+                    <textarea class="review-textarea" id="reviewComment" placeholder="Tell us about your experience (optional)"></textarea>
+                    <button class="submit-review-btn" id="submitReviewBtn">Submit Review</button>
+                </div>
+
+                <div class="reviews-list" id="reviewsList">
+                    <!-- fetched reviews go here -->
+                </div>
+            </section>
+
             <div class="order-feedback" id="orderFeedback" role="status"></div>
             <div class="notice-banner" id="noticeBanner"></div>
             
@@ -35,6 +68,7 @@
         </main>
     </div>
 
+    <script src="auth.js"></script>
     <script>
         const REDIRECT_STORAGE_KEY = 'redirectAfterLogin';
         
@@ -518,7 +552,7 @@
     }
 };
 
-        function getCafeteriaId() {
+        function getPageCafeteriaId() {
             const params = new URLSearchParams(window.location.search);
             return params.get('id');
         }
@@ -528,16 +562,21 @@
         function showFeedback(message, tone = 'success') {
             const feedback = document.getElementById('orderFeedback');
             feedback.textContent = message;
-            feedback.className = `order-feedback order-feedback--${tone}`;
-            feedback.style.display = 'block';
+            feedback.className = `order-feedback order-feedback--${tone} is-visible`;
 
             clearTimeout(feedbackTimeout);
             
             feedbackTimeout = setTimeout(() => {
                 feedback.textContent = '';
                 feedback.className = 'order-feedback';
-                feedback.style.display = 'none';
             }, 4000);
+        }
+
+        function resolveImageSrc(src) {
+            if (!src) return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200';
+            if (/^https?:\/\//i.test(src)) return src;
+            if (src.startsWith('/photos/')) return src.slice(1); // /photos/... -> photos/...
+            return src;
         }
 
         function renderTakeoutSection(cafeteriaId, cafeteria) {
@@ -559,7 +598,7 @@
                     ${takeout.items.map((item, index) => `
                         <article class="takeout-item">
                             <div class="takeout-item-image-container">
-                                <img src="${item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200'}" alt="${item.name}" class="takeout-item-image">
+                                <img src="${resolveImageSrc(item.image)}" alt="${item.name}" class="takeout-item-image">
                             </div>
                             <div class="takeout-item-content">
                                 <div class="takeout-item-top">
@@ -673,7 +712,7 @@
         }
 
         function renderCafeteriaPage() {
-            const cafeteriaId = getCafeteriaId();
+            const cafeteriaId = getPageCafeteriaId();
             const cafeteria = cafeteriaData[cafeteriaId];
 
             if (!cafeteria) {
@@ -696,7 +735,7 @@
                     ${section.items.map((item, itemIndex) => `
                         <div class="menu-item">
                             <div class="item-image-container">
-                                <img src="${item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200'}" alt="${item.name}" class="item-image">
+                                <img src="${resolveImageSrc(item.image)}" alt="${item.name}" class="item-image">
                             </div>
                             <div class="item-content">
                                 <div class="item-header">
@@ -745,7 +784,7 @@
             
             sessionStorage.setItem('selectedItems', JSON.stringify(selectedItems));
             
-            const cafeteriaId = getCafeteriaId();
+            const cafeteriaId = getPageCafeteriaId();
             const cafeteria = cafeteriaData[cafeteriaId];
             sessionStorage.setItem('checkoutCafeteria', JSON.stringify({
                 id: cafeteriaId,
@@ -754,6 +793,108 @@
             
             window.location.href = 'checkout.html';
         });
+
+        // --- Ratings Logic ---
+        let currentRating = 0;
+        const starSelector = document.getElementById('starSelector');
+        const stars = starSelector.querySelectorAll('svg');
+
+        stars.forEach(star => {
+            star.addEventListener('mouseover', (e) => {
+                const value = parseInt(e.currentTarget.dataset.value);
+                stars.forEach((s, idx) => {
+                    if (idx < value) s.classList.add('hover');
+                    else s.classList.remove('hover');
+                });
+            });
+
+            star.addEventListener('mouseout', () => {
+                stars.forEach(s => s.classList.remove('hover'));
+            });
+
+            star.addEventListener('click', (e) => {
+                currentRating = parseInt(e.currentTarget.dataset.value);
+                stars.forEach((s, idx) => {
+                    if (idx < currentRating) s.classList.add('selected');
+                    else s.classList.remove('selected');
+                });
+            });
+        });
+
+        async function fetchRatings() {
+            const cafeteriaId = getPageCafeteriaId();
+            const { ok, data } = await apiCall(`/ratings/${cafeteriaId}`);
+            if (!ok || !data) return;
+
+            document.getElementById('avgScore').textContent = data.average.toFixed(1);
+            document.getElementById('totalReviews').textContent = `${data.total} reviews`;
+            
+            // Draw average stars
+            let avgStarsHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= Math.round(data.average)) {
+                    avgStarsHTML += '<span class="star-icon filled">★</span>';
+                } else {
+                    avgStarsHTML += '<span class="star-icon">☆</span>';
+                }
+            }
+            document.getElementById('avgStars').innerHTML = avgStarsHTML;
+
+            // Render reviews
+            const reviewsList = document.getElementById('reviewsList');
+            if (data.reviews.length === 0) {
+                reviewsList.innerHTML = '<p style="color: #851616; font-size: 13px;">No reviews yet. Be the first!</p>';
+            } else {
+                reviewsList.innerHTML = data.reviews.map(r => `
+                    <div class="review-card">
+                        <div class="review-card-header">
+                            <span class="reviewer-name">${r.userName}</span>
+                            <span class="review-date">${new Date(r.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <div class="review-stars" style="color: #f4a261; margin-bottom: 8px;">
+                            ${'★'.repeat(r.score)}${'☆'.repeat(5 - r.score)}
+                        </div>
+                        ${r.comment ? `<p class="review-comment">${r.comment}</p>` : ''}
+                    </div>
+                `).join('');
+            }
+        }
+
+        document.getElementById('submitReviewBtn').addEventListener('click', async () => {
+            if (!(await isAuthenticated())) {
+                showFeedback('Please login to leave a review', 'error');
+                return;
+            }
+
+            if (currentRating === 0) {
+                showFeedback('Please select a star rating', 'error');
+                return;
+            }
+
+            const comment = document.getElementById('reviewComment').value.trim();
+            const cafeteriaId = getPageCafeteriaId();
+
+            document.getElementById('submitReviewBtn').disabled = true;
+            const { ok, data } = await apiCall('/ratings/', 'POST', {
+                cafeteriaId,
+                score: currentRating,
+                comment
+            });
+
+            if (ok && data?.success) {
+                showFeedback('Review submitted successfully!', 'success');
+                document.getElementById('reviewComment').value = '';
+                currentRating = 0;
+                stars.forEach(s => s.classList.remove('selected'));
+                fetchRatings();
+            } else {
+                showFeedback(data?.message || 'Failed to submit review', 'error');
+            }
+            document.getElementById('submitReviewBtn').disabled = false;
+        });
+
+        // Initialize ratings on load
+        fetchRatings();
     </script>
 </body>
 </html>
