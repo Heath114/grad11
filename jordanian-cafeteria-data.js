@@ -17,21 +17,21 @@ const cafeteriaData = {
                     {
                         name: "Foul & Hummus Platter",
                         description: "Warm fava beans and creamy hummus with olive oil, served with fresh pita bread.",
-                        price: "2.5 JOD",
+                        price: "1.5 JOD",
                         image: "/photos/engeenering 1/55d38b8c-7fe9-49a2-8d36-2ac059cdb5e7.avif",
                         addOns: [
-                            { name: "Extra pita", price: "0.5 JOD" },
-                            { name: "Pickles & olives", price: "0.8 JOD" }
+                            { name: "Extra pita", price: "0.3 JOD" },
+                            { name: "Pickles & olives", price: "0.5 JOD" }
                         ]
                     },
                     {
                         name: "Manakish Za'atar",
                         description: "Freshly baked flatbread topped with za'atar and olive oil.",
-                        price: "1.5 JOD",
+                        price: "1 JOD",
                         image: "photos/engeenering 1/Manakish-Zaatar-1-of-1.jpeg",
                         addOns: [
-                            { name: "Labneh side", price: "0.7 JOD" },
-                            { name: "Cheese topping", price: "1 JOD" }
+                            { name: "Labneh side", price: "0.5 JOD" },
+                            { name: "Cheese topping", price: "0.6 JOD" }
                         ]
                     }
                 ]
@@ -42,21 +42,21 @@ const cafeteriaData = {
                     {
                         name: "Maqluba (Upside Down Rice)",
                         description: "Traditional layered rice with chicken, eggplant, cauliflower and Middle Eastern spices.",
-                        price: "4.5 JOD",
+                        price: "3.5 JOD",
                         image: "photos/engeenering 1/maqluba-upside-down-chicken-and-rice_11005.jpg",
                         addOns: [
-                            { name: "Yogurt salad", price: "0.8 JOD" },
-                            { name: "Extra meat", price: "2 JOD" }
+                            { name: "Yogurt salad", price: "0.5 JOD" },
+                            { name: "Extra meat", price: "1.5 JOD" }
                         ]
                     },
                     {
                         name: "Chicken Shawarma Plate",
                         description: "Marinated chicken shawarma with rice, salad, and tahini sauce.",
-                        price: "3.5 JOD",
+                        price: "2.5 JOD",
                         image: "photos/engeenering 1/1667937205404.webp",
                         addOns: [
-                            { name: "French fries", price: "1 JOD" },
-                            { name: "Garlic sauce", price: "0.5 JOD" }
+                            { name: "French fries", price: "0.7 JOD" },
+                            { name: "Garlic sauce", price: "0.3 JOD" }
                         ]
                     }
                 ]
@@ -69,23 +69,23 @@ const cafeteriaData = {
                 {
                     name: "Falafel Sandwich",
                     description: "Crispy falafel with tahini, vegetables, and pickles in fresh pita.",
-                    price: "1.8 JOD",
+                    price: "0.5 JOD",
                     image: "photos/engeenering 1/Falafel-Sandwich-Recipe-SQ.jpg",
                     readyIn: "Ready in 8 minutes",
                     addOns: [
-                        { name: "Extra falafel", price: "0.5 JOD" },
-                        { name: "French fries inside", price: "0.7 JOD" }
+                        { name: "Extra falafel", price: "0.4 JOD" },
+                        { name: "French fries inside", price: "0.5 JOD" }
                     ]
                 },
                 {
                     name: "Chicken Shawarma Wrap",
                     description: "Tender chicken shawarma with garlic sauce and pickles in saj bread.",
-                    price: "2.5 JOD",
+                    price: "0.8 JOD",
                     image: "photos/engeenering 1/Screenshot-2025-07-28-at-11.webp",
                     readyIn: "Ready in 10 minutes",
                     addOns: [
-                        { name: "Extra garlic sauce", price: "0.3 JOD" },
-                        { name: "Cheese", price: "0.7 JOD" }
+                        { name: "Extra garlic sauce", price: "0.2 JOD" },
+                        { name: "Cheese", price: "0.5 JOD" }
                     ]
                 }
             ]
@@ -108,11 +108,11 @@ const cafeteriaData = {
                     {
                         name: "Labneh Plate",
                         description: "Creamy labneh drizzled with olive oil, served with cucumbers, tomatoes, and pita.",
-                        price: "2 JOD",
+                        price: "1.5 JOD",
                         image: "/photos/engeenering 1/55d38b8c-7fe9-49a2-8d36-2ac059cdb5e7.avif",
                         addOns: [
-                            { name: "Mint leaves", price: "0.3 JOD" },
-                            { name: "Za'atar mix", price: "0.5 JOD" }
+                            { name: "Mint leaves", price: "0.2 JOD" },
+                            { name: "Za'atar mix", price: "0.4 JOD" }
                         ]
                     }
                 ]
@@ -123,11 +123,11 @@ const cafeteriaData = {
                     {
                         name: "Meat Biryani",
                         description: "Spiced rice with tender lamb, nuts, and raisins.",
-                        price: "5 JOD",
+                        price: "3.5 JOD",
                         image: "https://images.unsplash.com/photo-1563379091339-03246963d96c?w=200",
                         addOns: [
-                            { name: "Yogurt", price: "0.8 JOD" },
-                            { name: "Hot sauce", price: "0.3 JOD" }
+                            { name: "Yogurt", price: "0.5 JOD" },
+                            { name: "Hot sauce", price: "0.2 JOD" }
                         ]
                     }
                 ]
@@ -140,11 +140,11 @@ const cafeteriaData = {
                 {
                     name: "Beef Shawarma Sandwich",
                     description: "Marinated beef with tahini and pickles.",
-                    price: "2.8 JOD",
+                    price: "1 JOD",
                     image: "https://images.unsplash.com/photo-1551782450-17144efb5723?w=200",
                     readyIn: "Ready in 10 minutes",
                     addOns: [
-                        { name: "Extra meat", price: "1 JOD" }
+                        { name: "Extra meat", price: "0.7 JOD" }
                     ]
                 }
             ]
@@ -166,10 +166,10 @@ const cafeteriaData = {
                     {
                         name: "Balila (Chickpea Bowl)",
                         description: "Warm chickpeas with lemon, garlic, and cumin.",
-                        price: "2 JOD",
+                        price: "1.5 JOD",
                         image: "photos/Medicine/hummus-balila-11.jpg",
                         addOns: [
-                            { name: "Pita bread", price: "0.5 JOD" }
+                            { name: "Pita bread", price: "0.3 JOD" }
                         ]
                     }
                 ]
@@ -180,10 +180,10 @@ const cafeteriaData = {
                     {
                         name: "Grilled Chicken with Rice",
                         description: "Seasoned grilled chicken breast with saffron rice and salad.",
-                        price: "4 JOD",
+                        price: "3 JOD",
                         image: "photos/Medicine/images.jpg",
                         addOns: [
-                            { name: "Garlic dip", price: "0.5 JOD" }
+                            { name: "Garlic dip", price: "0.3 JOD" }
                         ]
                     }
                 ]
@@ -196,7 +196,7 @@ const cafeteriaData = {
                 {
                     name: "Grilled Halloumi Wrap",
                     description: "Grilled halloumi cheese with vegetables in saj bread.",
-                    price: "2.5 JOD",
+                    price: "1 JOD",
                     image: "https://images.unsplash.com/photo-1540912162-ef3c302c3f8f?w=200",
                     readyIn: "Ready in 12 minutes",
                     addOns: []
@@ -221,10 +221,10 @@ const cafeteriaData = {
                     {
                         name: "Shakshuka",
                         description: "Eggs poached in spiced tomato sauce, served with bread.",
-                        price: "3 JOD",
+                        price: "2 JOD",
                         image: "photos/Business/Shakshuka-main-1.webp",
                         addOns: [
-                            { name: "Extra egg", price: "0.7 JOD" }
+                            { name: "Extra egg", price: "0.5 JOD" }
                         ]
                     }
                 ]
@@ -235,11 +235,11 @@ const cafeteriaData = {
                     {
                         name: "Mansaf",
                         description: "Jordan's national dish - lamb cooked in jameed sauce over rice.",
-                        price: "6.5 JOD",
+                        price: "5 JOD",
                         image: "photos/Business/mansaf-4-1-500x500.jpg",
                         addOns: [
-                            { name: "Extra jameed sauce", price: "1 JOD" },
-                            { name: "Roasted nuts", price: "1.5 JOD" }
+                            { name: "Extra jameed sauce", price: "0.7 JOD" },
+                            { name: "Roasted nuts", price: "0.9 JOD" }
                         ]
                     }
                 ]
@@ -252,7 +252,7 @@ const cafeteriaData = {
                 {
                     name: "Kafta Sandwich",
                     description: "Spiced ground meat kafta with hummus and pickles.",
-                    price: "3 JOD",
+                    price: "1 JOD",
                     image: "photos/Business/ground-beef-pita-sandwich-recipe-4.jpg",
                     readyIn: "Ready in 15 minutes",
                     addOns: []
@@ -277,7 +277,7 @@ const cafeteriaData = {
                     {
                         name: "Fatteh",
                         description: "Layers of toasted bread, chickpeas, yogurt, and pine nuts.",
-                        price: "3.5 JOD",
+                        price: "2 JOD",
                         image: "https://images.unsplash.com/photo-YyZoVGbwkfA?w=200",
                         addOns: []
                     }
@@ -289,10 +289,10 @@ const cafeteriaData = {
                     {
                         name: "Kousa Mahshi (Stuffed Zucchini)",
                         description: "Zucchini stuffed with rice and meat in tomato sauce.",
-                        price: "4.5 JOD",
+                        price: "2.5 JOD",
                         image: "https://images.unsplash.com/photo-DkcuZwa1O50?w=200",
                         addOns: [
-                            { name: "Yogurt", price: "0.8 JOD" }
+                            { name: "Yogurt", price: "0.5 JOD" }
                         ]
                     }
                 ]
@@ -305,7 +305,7 @@ const cafeteriaData = {
                 {
                     name: "Mixed Grill Plate",
                     description: "Kafta, shish tawook, and lamb with rice.",
-                    price: "5.5 JOD",
+                    price: "4 JOD",
                     readyIn: "Ready in 20 minutes",
                     addOns: [],
                     image: "https://images.unsplash.com/photo-VG6cI5Y9Ikw?w=200"
@@ -330,10 +330,10 @@ const cafeteriaData = {
                     {
                         name: "Mezze Platter",
                         description: "Hummus, baba ghanoush, tabbouleh, and pita.",
-                        price: "4 JOD",
+                        price: "2.5 JOD",
                         image: "https://images.unsplash.com/photo--ssV85Xgl1U?w=200",
                         addOns: [
-                            { name: "Extra pita", price: "0.5 JOD" }
+                            { name: "Extra pita", price: "0.3 JOD" }
                         ]
                     }
                 ]
@@ -344,7 +344,7 @@ const cafeteriaData = {
                     {
                         name: "Chicken Musakhan",
                         description: "Roasted chicken with sumac, onions, and taboon bread.",
-                        price: "5 JOD",
+                        price: "3.5 JOD",
                         image: "https://images.unsplash.com/photo-RS0bbzjyTDg?w=200",
                         addOns: []
                     }
@@ -358,7 +358,7 @@ const cafeteriaData = {
                 {
                     name: "Labneh & Za'atar Wrap",
                     description: "Creamy labneh with za'atar, cucumber, and mint.",
-                    price: "2 JOD",
+                    price: "0.8 JOD",
                     image: "https://images.unsplash.com/photo-_Ry6i-pU3Fs?w=200",
                     readyIn: "Ready in 8 minutes",
                     addOns: []
@@ -383,9 +383,9 @@ const cafeteriaData = {
                     {
                         name: "Ful Medames",
                         description: "Slow-cooked fava beans with lemon, garlic, and olive oil.",
-                        price: "2.5 JOD",
+                        price: "1.5 JOD",
                         addOns: [
-                            { name: "Hard boiled egg", price: "0.5 JOD" }
+                            { name: "Hard boiled egg", price: "0.3 JOD" }
                         ]
                     }
                 ]
@@ -396,7 +396,7 @@ const cafeteriaData = {
                     {
                         name: "Lamb Kabsa",
                         description: "Fragrant rice with tender lamb and mixed vegetables.",
-                        price: "6 JOD",
+                        price: "4 JOD",
                         addOns: []
                     }
                 ]
@@ -409,7 +409,7 @@ const cafeteriaData = {
                 {
                     name: "Shish Tawook Sandwich",
                     description: "Marinated grilled chicken with garlic sauce and pickles.",
-                    price: "2.8 JOD",
+                    price: "1 JOD",
                     image: "https://images.unsplash.com/photo-VG6cI5Y9Ikw?w=200",
                     readyIn: "Ready in 12 minutes",
                     addOns: []
@@ -434,7 +434,7 @@ const cafeteriaData = {
                     {
                         name: "Knafeh Slice",
                         description: "Sweet cheese pastry with sugar syrup and pistachios.",
-                        price: "2 JOD",
+                        price: "0.9 JOD",
                         addOns: []
                     }
                 ]
@@ -464,7 +464,7 @@ const cafeteriaData = {
                 {
                     name: "Tuna Sandwich",
                     description: "Tuna with vegetables and mayonnaise in fresh bread.",
-                    price: "2.2 JOD",
+                    price: "0.9 JOD",
                     image: "https://images.unsplash.com/photo-c1cOeJbj1aY?w=200",
                     readyIn: "Ready in 7 minutes",
                     addOns: []
