@@ -70,6 +70,52 @@ body {
     margin: 0 auto;
 }
 
+.admin-tools {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.admin-tools-label {
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #c26d6d;
+    font-weight: 600;
+}
+
+.admin-tools-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.admin-tool-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    border-radius: 999px;
+    border: 1px solid #d62828;
+    color: #d62828;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.admin-tool-link:hover {
+    background: #ffecec;
+    transform: translateY(-1px);
+}
+
+.admin-tool-link:active {
+    transform: translateY(0);
+}
+
 .admin-summary {
     display: flex;
     align-items: center;

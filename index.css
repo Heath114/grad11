@@ -247,6 +247,19 @@ input::placeholder {
     transform: translateY(0);
 }
 
+.admin-tools .browse-link {
+    border-color: #c20f0f;
+    color: #c20f0f;
+}
+
+.admin-tools {
+    margin-top: 6px;
+}
+
+.admin-tools .browse-section {
+    margin-top: 0;
+}
+
 @media (max-width: 640px) {
     body {
         padding: 40px 18px;

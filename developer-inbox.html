@@ -10,7 +10,7 @@
         
         .sidebar { background: #fff; width: 250px; padding: 20px 10px; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; }
         .logo { font-size: 22px; font-weight: 600; color: #3c4043; padding: 0 10px 20px; border-bottom: 1px solid #eee; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-        .nav-item { padding: 12px 20px; border-radius: 0 20px 20px 0; margin-right: 15px; cursor: pointer; color: #3c4043; font-weight: 500; display: flex; justify-content: space-between; }
+        .nav-item { padding: 12px 20px; border-radius: 0 20px 20px 0; margin-right: 15px; cursor: pointer; color: #3c4043; font-weight: 500; display: flex; justify-content: space-between; text-decoration: none; }
         .nav-item.active { background: #e8f0fe; color: #1a73e8; }
         .badge { background: #1a73e8; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
 
@@ -61,9 +61,9 @@
             <span>Inbox</span>
             <span class="badge" id="inbox-count">0</span>
         </div>
-        <div class="nav-item" style="color: #5f6368; font-weight: 400;" onclick="window.location.href='index.html'">
-            <span>&larr; Back to App</span>
-        </div>
+        <a class="nav-item" id="adminBackLink" style="color: #5f6368; font-weight: 400;" href="#">
+            <span>&larr; Back to Admin</span>
+        </a>
         
     </div>
 
@@ -108,6 +108,14 @@
         const API_URL = window.location.origin.includes('127.0.0.1:5500')
             ? 'http://127.0.0.1:5001'
             : window.location.origin;
+
+        if (getUserType() !== 'admin') {
+            window.location.href = 'index.html';
+        }
+
+        const backLink = document.getElementById('adminBackLink');
+        const cafeteriaId = sessionStorage.getItem('cafeteriaId');
+        backLink.href = cafeteriaId ? `admin-dashboard.html?id=${cafeteriaId}` : 'admin-dashboard.html';
 
         async function fetchEmails() {
             const listEl = document.getElementById('email-list');

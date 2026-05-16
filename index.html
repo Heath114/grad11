@@ -48,10 +48,6 @@
                 <a class="browse-link" href="user-dashboard.html">Explore Cafeteria Menus</a>
             </div>
 
-            <div class="browse-section" style="margin-top: 15px;">
-                <span class="browse-copy">Developer Tools:</span>
-                <a class="browse-link" href="developer-inbox.html" style="color: #d61010;">📭 View Support Inbox</a>
-            </div>
         </div>
 
         <div id="adminPanel" class="login-panel is-hidden">
@@ -117,12 +113,13 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="user-extras" id="adminUserExtras" style="display: none; flex-direction: column; align-items: center; justify-content: center; gap: 15px;">
-            <div class="browse-section">
-                <span class="browse-copy">Developer Tools:</span>
-                <a class="browse-link" href="developer-inbox.html" style="color: #c20f0f;">📭 View Support Inbox</a>
+            <div class="user-extras admin-tools" id="adminUserExtras" style="display: none; flex-direction: column; align-items: center; justify-content: center; gap: 15px;">
+                <div class="browse-section">
+                    <span class="browse-copy">Developer Tools:</span>
+                    <a class="browse-link" href="delivery-dashboard.html">🚚 Delivery Dashboard</a>
+                    <a class="browse-link" href="developer-inbox.html">📭 View Support Inbox</a>
+                </div>
             </div>
         </div>
     </div>
@@ -184,6 +181,12 @@
             }
         }
 
+        function setAdminToolsVisibility() {
+            const adminTools = document.getElementById('adminUserExtras');
+            const isAdminSession = sessionStorage.getItem('userType') === 'admin';
+            adminTools.style.display = isAdminSession ? 'flex' : 'none';
+        }
+
         function setActivePanel(panel) {
             if (panel === 'admin') {
                 adminPanel.classList.remove('is-hidden');
@@ -191,7 +194,7 @@
                 adminChoice.classList.add('active');
                 userChoice.classList.remove('active');
                 userExtras.classList.add('is-hidden');
-                document.getElementById('adminUserExtras').style.display = 'flex';
+                setAdminToolsVisibility();
                 setAdminMode('login');
                 document.getElementById('adminUsername').value = '';
                 document.getElementById('adminPassword').value = '';
@@ -202,7 +205,7 @@
                 userChoice.classList.add('active');
                 adminChoice.classList.remove('active');
                 userExtras.classList.remove('is-hidden');
-                document.getElementById('adminUserExtras').style.display = 'none';
+                setAdminToolsVisibility();
                 document.getElementById('phone').value = '';
                 document.getElementById('password').value = '';
                 errorMsg.classList.remove('show');
@@ -248,24 +251,39 @@
             });
         });
 
-        userChoice.addEventListener('click', () => setActivePanel('user'));
-        adminChoice.addEventListener('click', () => setActivePanel('admin'));
+        let suppressChoiceClick = false;
+
+        userChoice.addEventListener('click', () => {
+            if (suppressChoiceClick) return;
+            setActivePanel('user');
+        });
+        adminChoice.addEventListener('click', () => {
+            if (suppressChoiceClick) return;
+            setActivePanel('admin');
+        });
         userChoice.addEventListener('dblclick', (e) => {
             e.preventDefault();
+            e.stopPropagation();
+            suppressChoiceClick = true;
             setActivePanel('user');
             document.getElementById('phone').value = 'user1';
             document.getElementById('password').value = 'user1';
             errorMsg.classList.remove('show');
+            setTimeout(() => { suppressChoiceClick = false; }, 0);
         });
         adminChoice.addEventListener('dblclick', (e) => {
             e.preventDefault();
+            e.stopPropagation();
+            suppressChoiceClick = true;
             setActivePanel('admin');
             setAdminMode('login');
             document.getElementById('adminUsername').value = 'admin1';
             document.getElementById('adminPassword').value = 'admin1';
             adminError.classList.remove('show');
+            setTimeout(() => { suppressChoiceClick = false; }, 0);
         });
 
+        setAdminToolsVisibility();
         setActivePanel('user');
 
         adminForm.addEventListener('submit', async function(e) {

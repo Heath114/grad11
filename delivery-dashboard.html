@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="delivery-dashboard.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <a class="back-link" id="backToAdmin" href="#">← Back to Admin</a>
+            <h1>Delivery</h1>
+            <p>Driver Dashboard</p>
+            <button class="logout-btn" id="driverLogoutBtn" type="button">Sign Out</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="delivery-summary" id="deliverySummary"></div>
+        <div class="delivery-actions">
+            <button class="refresh-btn" id="refreshBtn" type="button">Refresh</button>
+        </div>
+
+        <div id="deliveryOrdersContainer" class="orders-grid">
+            <div class="empty-state">
+                <div class="empty-state-icon">🚚</div>
+                <h3>No delivery orders</h3>
+                <p>Delivery requests will appear here</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        const userType = sessionStorage.getItem('userType');
+        const cafeteriaId = sessionStorage.getItem('cafeteriaId');
+        const cafeteriaName = sessionStorage.getItem('cafeteriaName') || 'Assigned Cafeteria';
+
+        if (userType !== 'admin' || !cafeteriaId) {
+            window.location.href = 'index.html';
+        }
+
+        const deliverySummary = document.getElementById('deliverySummary');
+        const ordersContainer = document.getElementById('deliveryOrdersContainer');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const logoutBtn = document.getElementById('driverLogoutBtn');
+        const backToAdmin = document.getElementById('backToAdmin');
+
+        backToAdmin.href = `admin-dashboard.html?id=${cafeteriaId}`;
+
+        deliverySummary.innerHTML = `
+            <span class="summary-label">Cafeteria</span>
+            <span class="summary-value">${cafeteriaName}</span>
+            <span class="summary-label">Mode</span>
+            <span class="summary-value">Delivery Only</span>
+        `;
+
+        function formatStatus(status) {
+            return status.replace(/_/g, ' ');
+        }
+
+        function renderOrders(orders) {
+            const deliveryOrders = orders.filter(order => order.orderType === 'Delivery');
+
+            if (!deliveryOrders.length) {
+                ordersContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🚚</div>
+                        <h3>No delivery orders</h3>
+                        <p>Delivery requests will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+
+            ordersContainer.innerHTML = deliveryOrders.map(order => `
+                <article class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <span class="order-id">Order #${order.id}</span>
+                            <span class="order-time">${new Date(order.createdAt).toLocaleString()}</span>
+                        </div>
+                        <span class="status-badge status-${order.status}">${formatStatus(order.status)}</span>
+                    </div>
+                    <div class="order-details">
+                        <div>
+                            <span class="detail-label">Customer</span>
+                            <span class="detail-value">${order.userName || 'Unknown'}</span>
+                            <span class="detail-meta">${order.userPhone || ''}</span>
+                        </div>
+                        <div>
+                            <span class="detail-label">Location</span>
+                            <span class="detail-value">${order.deliveryLocation || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="order-actions">
+                        <button class="ghost-btn" data-action="pickup" data-id="${order.id}">Pick Up Order</button>
+                        <button class="primary-btn" data-action="deliver" data-id="${order.id}">Mark as Delivered</button>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        async function fetchOrders() {
+            const response = await apiCall(`/orders/cafeteria/${cafeteriaId}`);
+            if (!response.ok) {
+                ordersContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <h3>Unable to load deliveries</h3>
+                        <p>Check your admin session and try again.</p>
+                    </div>
+                `;
+                return;
+            }
+            renderOrders(response.data);
+        }
+
+        async function updateStatus(orderId, action) {
+            const endpoint = action === 'deliver'
+                ? `/orders/${orderId}/deliver`
+                : `/orders/${orderId}/pickup`;
+
+            const response = await apiCall(endpoint, 'POST');
+            if (response.ok) {
+                fetchOrders();
+            }
+        }
+
+        ordersContainer.addEventListener('click', event => {
+            const button = event.target.closest('button');
+            if (!button) return;
+            const action = button.dataset.action;
+            const orderId = button.dataset.id;
+            if (!action || !orderId) return;
+            updateStatus(orderId, action);
+        });
+
+        refreshBtn.addEventListener('click', fetchOrders);
+        logoutBtn.addEventListener('click', logout);
+
+        fetchOrders();
+    </script>
+</body>
+</html>

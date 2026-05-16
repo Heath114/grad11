@@ -6,8 +6,8 @@ orders_bp = Blueprint('orders', __name__)
 
 
 def compute_status(created_at_str, order_type, current_status):
-    if current_status == 'completed':
-        return 'completed'
+    if current_status in ('completed', 'out_for_delivery'):
+        return current_status
         
     """
     Derive order status from elapsed time since creation.
@@ -237,3 +237,37 @@ def complete_order(order_id):
     db.commit()
     db.close()
     return jsonify({'success': True, 'message': 'Order marked as completed'})
+
+
+@orders_bp.route('/<int:order_id>/pickup', methods=['POST'])
+def pickup_order(order_id):
+    if session.get('user_type') != 'admin':
+        return jsonify({'error': 'Admin access required'}), 403
+
+    db = get_db()
+    order = db.execute('SELECT * FROM orders WHERE id = ?', (order_id,)).fetchone()
+    if not order:
+        db.close()
+        return jsonify({'error': 'Order not found'}), 404
+
+    db.execute("UPDATE orders SET status = 'out_for_delivery' WHERE id = ?", (order_id,))
+    db.commit()
+    db.close()
+    return jsonify({'success': True, 'message': 'Order marked as out for delivery'})
+
+
+@orders_bp.route('/<int:order_id>/deliver', methods=['POST'])
+def deliver_order(order_id):
+    if session.get('user_type') != 'admin':
+        return jsonify({'error': 'Admin access required'}), 403
+
+    db = get_db()
+    order = db.execute('SELECT * FROM orders WHERE id = ?', (order_id,)).fetchone()
+    if not order:
+        db.close()
+        return jsonify({'error': 'Order not found'}), 404
+
+    db.execute("UPDATE orders SET status = 'completed' WHERE id = ?", (order_id,))
+    db.commit()
+    db.close()
+    return jsonify({'success': True, 'message': 'Order marked as delivered'})
